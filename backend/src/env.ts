@@ -4,8 +4,9 @@ dotenv.config();
 import { z } from "zod";
 
 const envSchema = z.object({
-  AUTH_SECRET: z.string(),
+  JWT_SECRET: z.string(),
   PORT: z.string().transform((v) => parseInt(v)),
+  DATABASE_URL: z.string(),
 });
 
 envSchema.parse(process.env);
