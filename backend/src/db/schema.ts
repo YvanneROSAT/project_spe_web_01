@@ -22,13 +22,13 @@ export const usersTable = mysqlTable("users", {
   userId: varchar("Id_users", { length: 36 })
     .primaryKey()
     .$defaultFn(() => uuid()),
-  lastName: varchar("last_name", { length: 50 }),
-  firstName: varchar("first_name", { length: 50 }),
-  email: varchar("email", { length: 50 }).unique(),
-  passwordHash: varchar("password_hash", { length: 255 }),
-  createdAt: timestamp("created_at").defaultNow(),
+  lastName: varchar("last_name", { length: 50 }).notNull(),
+  firstName: varchar("first_name", { length: 50 }).notNull(),
+  email: varchar("email", { length: 320 }).unique().notNull(),
+  passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
   lastLogin: timestamp("last_login"),
-  isActive: boolean("is_active").default(true),
+  isActive: boolean("is_active").default(true).notNull(),
 });
 
 export const productsTable = mysqlTable("products", {
