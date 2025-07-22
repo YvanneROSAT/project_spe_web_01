@@ -1,12 +1,13 @@
 services:
   db:
+    env_file: ".env"
     image: mysql
     restart: always
     ports:
-      - 3306:3306
+      - ${DB_PORT}:3306
     environment:
-      MYSQL_ROOT_PASSWORD: mysecretpassword
-      MYSQL_DATABASE: project_spe_web
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
     volumes:
       - mysqldata:/var/lib/mysql
 volumes:

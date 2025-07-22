@@ -1,102 +1,127 @@
-import { mysqlTable, int, varchar, text, decimal, timestamp, boolean, json, unique } from 'drizzle-orm/mysql-core';
-import { relations } from 'drizzle-orm';
+import { relations } from "drizzle-orm";
+import {
+  boolean,
+  decimal,
+  int,
+  json,
+  mysqlTable,
+  text,
+  timestamp,
+  varchar,
+} from "drizzle-orm/mysql-core";
+import { v4 as uuid } from "uuid";
 
-export const categories = mysqlTable('categories', {
-  Id_categories: int('Id_categories').primaryKey().autoincrement(),
-  label: varchar('label', { length: 50 }),
+export const categoriesTable = mysqlTable("categories", {
+  categoryId: varchar("Id_categories", { length: 36 })
+    .primaryKey()
+    .$defaultFn(() => uuid()),
+  label: varchar("label", { length: 50 }),
 });
 
-export const users = mysqlTable('users', {
-  Id_users: int('Id_users').primaryKey().autoincrement(),
-  last_name: varchar('last_name', { length: 50 }),
-  first_name: varchar('first_name', { length: 50 }),
-  email: varchar('email', { length: 50 }).unique(),
-  password: varchar('password', { length: 255 }),
-  password_hash: varchar('password_hash', { length: 255 }),
-  created_at: timestamp('created_at').defaultNow(),
-  last_login: timestamp('last_login'),
-  is_active: boolean('is_active').default(true),
+export const usersTable = mysqlTable("users", {
+  userId: varchar("Id_users", { length: 36 })
+    .primaryKey()
+    .$defaultFn(() => uuid()),
+  lastName: varchar("last_name", { length: 50 }),
+  firstName: varchar("first_name", { length: 50 }),
+  email: varchar("email", { length: 50 }).unique(),
+  passwordHash: varchar("password_hash", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  lastLogin: timestamp("last_login"),
+  isActive: boolean("is_active").default(true),
 });
 
-export const products = mysqlTable('products', {
-  Id_Products: int('Id_Products').primaryKey().autoincrement(),
-  label: varchar('label', { length: 50 }),
-  description: text('description'),
-  price: decimal('price', { precision: 5, scale: 2 }),
-  Id_categories: int('Id_categories').notNull(),
+export const productsTable = mysqlTable("products", {
+  productId: varchar("Id_Products", { length: 36 })
+    .primaryKey()
+    .$defaultFn(() => uuid()),
+  label: varchar("label", { length: 50 }),
+  description: text("description"),
+  price: decimal("price", { precision: 5, scale: 2 }),
+  categoryId: varchar("Id_categories", { length: 36 }).$defaultFn(() => uuid()),
 });
 
-export const pictures = mysqlTable('pictures', {
-  Id_Picture: int('Id_Picture').primaryKey().autoincrement(),
-  path: varchar('path', { length: 150 }),
-  Id_Products: int('Id_Products').notNull(),
+export const picturesTable = mysqlTable("pictures", {
+  pictureId: varchar("Id_Picture", { length: 36 })
+    .primaryKey()
+    .$defaultFn(() => uuid()),
+  path: varchar("path", { length: 150 }),
+  productId: varchar("Id_Products", { length: 36 }).$defaultFn(() => uuid()),
 });
 
-export const cart = mysqlTable('cart', {
-  Id_cart: int('Id_cart').primaryKey().autoincrement(),
-  Id_users: int('Id_users').notNull(),
-  Id_Products: int('Id_Products').notNull(),
-  quantity: int('quantity').default(1),
-  created_at: timestamp('created_at').defaultNow(),
+export const cartTable = mysqlTable("cart", {
+  cartId: varchar("Id_cart", { length: 36 })
+    .primaryKey()
+    .$defaultFn(() => uuid()),
+  userId: varchar("Id_users", { length: 36 }).$defaultFn(() => uuid()),
+  productId: varchar("Id_Products", { length: 36 }).$defaultFn(() => uuid()),
+  quantity: int("quantity").default(1),
+  created_at: timestamp("created_at").defaultNow(),
 });
 
-export const user_sessions = mysqlTable('user_sessions', {
-  Id_session: int('Id_session').primaryKey().autoincrement(),
-  session_token: varchar('session_token', { length: 255 }).unique(),
-  Id_users: int('Id_users').notNull(),
-  expires_at: timestamp('expires_at').notNull(),
-  created_at: timestamp('created_at').defaultNow(),
+export const user_sessions = mysqlTable("user_sessions", {
+  sessionId: varchar("Id_session", { length: 36 })
+    .primaryKey()
+    .$defaultFn(() => uuid()),
+  sessionToken: varchar("session_token", { length: 255 }).unique(),
+  usersId: varchar("Id_users", { length: 36 }).$defaultFn(() => uuid()),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const csrf_tokens = mysqlTable('csrf_tokens', {
-  Id_csrf: int('Id_csrf').primaryKey().autoincrement(),
-  token: varchar('token', { length: 255 }).unique(),
-  Id_users: int('Id_users').notNull(),
-  expires_at: timestamp('expires_at').notNull(),
-  created_at: timestamp('created_at').defaultNow(),
+export const csrf_tokens = mysqlTable("csrf_tokens", {
+  csrfId: varchar("Id_csrf", { length: 36 })
+    .primaryKey()
+    .$defaultFn(() => uuid()),
+  token: varchar("token", { length: 255 }).unique(),
+  usersId: varchar("Id_users", { length: 36 }).$defaultFn(() => uuid()),
+  expiresAt: timestamp("expires_at").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const csp_reports = mysqlTable('csp_reports', {
-  Id_report: int('Id_report').primaryKey().autoincrement(),
-  report_data: json('report_data').notNull(),
-  user_agent: varchar('user_agent', { length: 255 }),
-  ip_address: varchar('ip_address', { length: 45 }),
-  created_at: timestamp('created_at').defaultNow(),
+export const csp_reports = mysqlTable("csp_reports", {
+  reportId: varchar("Id_report", { length: 36 })
+    .primaryKey()
+    .$defaultFn(() => uuid()),
+  reportData: json("report_data").notNull(),
+  userAgent: varchar("user_agent", { length: 255 }),
+  ipAddress: varchar("ip_address", { length: 45 }),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
-export const categoriesRelations = relations(categories, ({ many }) => ({
-  products: many(products),
+export const categoriesRelations = relations(categoriesTable, ({ many }) => ({
+  products: many(productsTable),
 }));
 
-export const productsRelations = relations(products, ({ one, many }) => ({
-  category: one(categories, {
-    fields: [products.Id_categories],
-    references: [categories.Id_categories],
+export const productsRelations = relations(productsTable, ({ one, many }) => ({
+  category: one(categoriesTable, {
+    fields: [productsTable.categoryId],
+    references: [categoriesTable.categoryId],
   }),
-  pictures: many(pictures),
-  cartItems: many(cart),
+  pictures: many(picturesTable),
+  cartItems: many(cartTable),
 }));
 
-export const picturesRelations = relations(pictures, ({ one }) => ({
-  product: one(products, {
-    fields: [pictures.Id_Products],
-    references: [products.Id_Products],
+export const picturesRelations = relations(picturesTable, ({ one }) => ({
+  product: one(productsTable, {
+    fields: [picturesTable.productId],
+    references: [productsTable.productId],
   }),
 }));
 
-export const usersRelations = relations(users, ({ many }) => ({
-  cartItems: many(cart),
+export const usersRelations = relations(usersTable, ({ many }) => ({
+  cartItems: many(cartTable),
   sessions: many(user_sessions),
   csrfTokens: many(csrf_tokens),
 }));
 
-export const cartRelations = relations(cart, ({ one }) => ({
-  user: one(users, {
-    fields: [cart.Id_users],
-    references: [users.Id_users],
+export const cartRelations = relations(cartTable, ({ one }) => ({
+  user: one(usersTable, {
+    fields: [cartTable.userId],
+    references: [usersTable.userId],
   }),
-  product: one(products, {
-    fields: [cart.Id_Products],
-    references: [products.Id_Products],
+  product: one(productsTable, {
+    fields: [cartTable.productId],
+    references: [productsTable.productId],
   }),
-})); 
+}));
