@@ -8,12 +8,26 @@
     "default": [
       [
         {
+          "name": "database",
+          "color": "terminal.ansiMagenta",
+          "icon": "database",
+          "autoExecuteCommands": true,
+          "joinOperator": ";",
+          "commands": [
+            "cd backend",
+            "pnpm db:start"
+          ]
+        },
+        {
           "name": "backend",
           "color": "terminal.ansiBlue",
           "icon": "server",
           "autoExecuteCommands": true,
           "joinOperator": ";",
-          "commands": ["cd backend", "pnpm run dev"]
+          "commands": [
+            "cd backend",
+            "pnpm dev"
+          ]
         }
       ]
     ]

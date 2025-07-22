@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "tsx --watch src/index.ts",
     "build": "tsc --config tsconfig.json src/index.ts",
-    "start": "node dist/src/index.ts"
+    "start": "node dist/src/index.ts",
+    "db:start": "docker compose up"
   },
   "keywords": [],
   "author": "",
