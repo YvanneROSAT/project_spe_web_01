@@ -8,7 +8,10 @@
     "build": "tsc --config tsconfig.json src/index.ts",
     "start": "node dist/src/index.ts",
     "db:start": "docker compose up",
-    "seed": "tsx src/scripts/seed.ts"
+    "seed": "tsx src/scripts/seed.ts",
+    "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
   },
   "keywords": [],
   "author": "",

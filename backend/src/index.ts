@@ -4,10 +4,10 @@ import cors from "cors";
 import express from "express";
 import helmet from "helmet";
 import { JwtPayload } from "jsonwebtoken";
-import { AuthController } from "./modules/auth/auth.controller";
+import authRouter from "./router/auth.router";
 
 const app = express();
-app.use(helmet()).use(cors()).use(express.json()).use(AuthController());
+app.use(helmet()).use(cors()).use(express.json()).use(authRouter);
 
 app.listen(process.env.PORT);
 
