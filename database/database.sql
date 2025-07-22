@@ -4,10 +4,10 @@ CREATE DATABASE project_spe_web;
 USE project_spe_web;
 
 -- Tables
-CREATE TABLE catégories(
-   Id_catégories INT AUTO_INCREMENT,
-   libelle VARCHAR(50),
-   PRIMARY KEY(Id_catégories)
+CREATE TABLE categories(
+   Id_categories INT AUTO_INCREMENT,
+   label VARCHAR(50),
+   PRIMARY KEY(Id_categories)
 ) ENGINE=InnoDB;
 
 CREATE TABLE users(
@@ -19,20 +19,20 @@ CREATE TABLE users(
    PRIMARY KEY(Id_users)
 ) ENGINE=InnoDB;
 
-CREATE TABLE produits(
-   Id_Produits INT AUTO_INCREMENT,
-   libelle VARCHAR(50),
+CREATE TABLE products(
+   Id_Products INT AUTO_INCREMENT,
+   label VARCHAR(50),
    description TEXT,
-   prix DECIMAL(5,2),
-   Id_catégories INT NOT NULL,
-   PRIMARY KEY(Id_Produits),
-   FOREIGN KEY(Id_catégories) REFERENCES catégories(Id_catégories)
+   price DECIMAL(5,2),
+   Id_categories INT NOT NULL,
+   PRIMARY KEY(Id_Products),
+   FOREIGN KEY(Id_categories) REFERENCES categories(Id_categories)
 ) ENGINE=InnoDB;
 
-CREATE TABLE Images(
-   Id_Images INT AUTO_INCREMENT,
+CREATE TABLE pictures(
+   Id_Picture INT AUTO_INCREMENT,
    path VARCHAR(150),
-   Id_Produits INT NOT NULL,
-   PRIMARY KEY(Id_Images),
-   FOREIGN KEY(Id_Produits) REFERENCES produits(Id_Produits)
+   Id_Products INT NOT NULL,
+   PRIMARY KEY(Id_Picture),
+   FOREIGN KEY(Id_Products) REFERENCES products(Id_Products)
 ) ENGINE=InnoDB;
