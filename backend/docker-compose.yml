@@ -6,7 +6,7 @@ services:
       - 3306:3306
     environment:
       MYSQL_ROOT_PASSWORD: mysecretpassword
-      MYSQL_DATABASE: local
+      MYSQL_DATABASE: project_spe_web
     volumes:
       - mysqldata:/var/lib/mysql
 volumes:

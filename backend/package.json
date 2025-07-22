@@ -7,7 +7,8 @@
     "dev": "tsx --watch src/index.ts",
     "build": "tsc --config tsconfig.json src/index.ts",
     "start": "node dist/src/index.ts",
-    "db:start": "docker compose up"
+    "db:start": "docker compose up",
+    "seed": "tsx src/scripts/seed.ts"
   },
   "keywords": [],
   "author": "",
@@ -16,9 +17,11 @@
   "dependencies": {
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.0",
+    "drizzle-orm": "^0.44.3",
     "express": "^5.1.0",
     "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.14.2",
     "uuid": "^11.1.0",
     "zod": "^4.0.5"
   },

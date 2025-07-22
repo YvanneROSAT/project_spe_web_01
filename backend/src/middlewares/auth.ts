@@ -10,7 +10,7 @@ export function auth(req: Request, res: Response, next: NextFunction) {
   const token = authHeader.split(" ")[1];
 
   try {
-    req.user = jwt.verify(token, process.env.AUTH_SECRET);
+    req.user = jwt.verify(token, process.env.JWT_SECRET);
 
     next();
   } catch {

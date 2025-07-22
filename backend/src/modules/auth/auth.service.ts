@@ -25,7 +25,7 @@ export function AuthService() {
       throw new InvalidCredentialsError();
     }
 
-    const token = jwt.sign({ email: user.email }, process.env.AUTH_SECRET);
+    const token = jwt.sign({ email: user.email }, process.env.JWT_SECRET);
 
     return token;
   }
