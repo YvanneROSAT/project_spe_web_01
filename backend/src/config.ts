@@ -1,4 +1,3 @@
-export const CSRF_TOKEN_KEY = "csrf_token";
 export const JWT_TOKEN_KEY = "token";
 export const BCRYPT_SALT_ROUNDS = 10;
 export const FAKE_PASSWORD_HASH =

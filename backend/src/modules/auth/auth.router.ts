@@ -64,7 +64,7 @@ export default Router()
     }
   )
   // todo: for tesging purposes, remove in prod
-  .get("/dev", requireAuth(true), async function (_req, res) {
+  .get("/dev", requireAuth, async function (_req, res) {
     if (process.env.NODE_ENV !== "dev") {
       return res.sendStatus(404);
     }
