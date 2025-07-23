@@ -1,11 +1,9 @@
 import { FAKE_PASSWORD_HASH, JWT_TOKEN_KEY } from "@/config";
 import { db } from "@/db/connection";
-import { usersTable } from "@/db/schema";
 import { requireAuth } from "@/middlewares/requireAuth";
 import { validateRequestBody } from "@/middlewares/validateRequestBody";
 import { createUser, getUserByEmail } from "@/modules/auth/auth.service";
 import { comparePassword, hashPassword } from "@/modules/auth/password";
-import { eq } from "drizzle-orm";
 import { Router } from "express";
 import { generateJWToken } from "./jwt";
 import { loginSchema, registerSchema } from "./schemas";
@@ -62,11 +60,4 @@ export default Router()
     const users = await db.query.usersTable.findMany();
 
     return res.json(users).send();
-  })
-  .delete("/", requireAuth(), async function (req, res) {
-    const result = await db
-      .delete(usersTable)
-      .where(eq(usersTable.email, req.user.email));
-
-    return res.sendStatus(result[0].affectedRows === 1 ? 200 : 404);
   });
