@@ -55,3 +55,17 @@ export async function createSession(
 
   return res[0].sessionId;
 }
+
+export async function updateSession(
+  sessionId: string,
+  tokenHash: string,
+  expiresAt: Date
+) {
+  await db
+    .update(sessionsTable)
+    .set({
+      tokenHash,
+      expiresAt,
+    })
+    .where(eq(sessionsTable.sessionId, sessionId));
+}

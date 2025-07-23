@@ -1,7 +1,20 @@
 import jwt from "jsonwebtoken";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import z from "zod";
-import { generateAccessToken, generateRefreshToken, verifyToken } from "./jwt";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  hashToken,
+  refreshTokens,
+  verifyToken,
+} from "./jwt";
+
+const mGetSession = vi.hoisted(() => vi.fn());
+const mUpdateSession = vi.hoisted(() => vi.fn());
+vi.mock("@/modules/auth/auth.service.ts", () => ({
+  getSession: mGetSession,
+  updateSession: mUpdateSession,
+}));
 
 describe("generateAccessToken", () => {
   it("returns the signed access token ", () => {
@@ -54,4 +67,31 @@ describe("verifyToken", () => {
   });
 });
 
-describe("refreshTokens", () => {});
+describe("refreshTokens", () => {
+  const mSecret = "secret";
+  process.env.REFRESH_TOKEN_SECRET = mSecret;
+  process.env.ACCESS_TOKEN_SECRET = mSecret;
+
+  it("should return a pair of accessToken and refreshToken", async () => {
+    const mOldRefreshToken = generateRefreshToken();
+    const mSession = {
+      sessionId: "sessionId123",
+      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      tokenHash: hashToken(mOldRefreshToken),
+      userId: "userId123",
+    };
+    mGetSession.mockResolvedValue(mSession);
+
+    const res = await refreshTokens(mOldRefreshToken);
+
+    expect(res).toEqual([expect.any(String), expect.any(String)]);
+    expect(mGetSession).toHaveBeenCalledTimes(1);
+    expect(mGetSession).toHaveBeenCalledWith(expect.any(String));
+    expect(mUpdateSession).toHaveBeenCalledTimes(1);
+    expect(mUpdateSession).toHaveBeenCalledWith(
+      mSession.sessionId,
+      expect.any(String),
+      expect.any(Date)
+    );
+  });
+});

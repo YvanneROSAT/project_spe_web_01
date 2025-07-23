@@ -22,7 +22,7 @@ export async function authenticate(
 
     // Attempt refresh if no valid access token
     if (refreshToken) {
-      const { newAccessToken, newRefreshToken } = await refreshTokens(
+      const [newAccessToken, newRefreshToken] = await refreshTokens(
         refreshToken
       );
 
