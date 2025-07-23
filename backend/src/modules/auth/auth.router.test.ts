@@ -63,6 +63,23 @@ describe("POST /login", () => {
       token: "mockedJWT",
     });
   });
+
+  it("returns 429 after too many login attempts", async () => {
+    mGetUserByEmail.mockResolvedValue(null);
+    mComparePassword.mockResolvedValue(false);
+
+    const attempts = 11;
+    let lastResponse;
+    for (let i = 0; i < attempts; i++) {
+      lastResponse = await request(app).post("/login").send({
+        email: "user@example.com",
+        password: "wrongpass",
+      });
+    }
+
+    expect(lastResponse?.status).toBe(429);
+    expect(lastResponse?.text).toMatch(/Too many requests/i);
+  });
 });
 
 describe("POST /register", () => {
@@ -93,5 +110,28 @@ describe("POST /register", () => {
     });
 
     expect(res.status).toBe(200);
+  });
+
+  it("returns 429 after too many register attempts", async () => {
+    mGetUserByEmail.mockResolvedValue(null);
+    mGetIsPasswordSafe.mockResolvedValue(true);
+    mHashPassword.mockResolvedValue("hashed");
+    mCreateUser.mockResolvedValue(true);
+
+    const attempts = 11;
+    let lastResponse;
+    for (let i = 0; i < attempts; i++) {
+      lastResponse = await request(app)
+        .post("/register")
+        .send({
+          email: `rate${i}@test.com`,
+          firstName: "John",
+          lastName: "Doe",
+          password: `someSafeP@ssword${i}`,
+        });
+    }
+
+    expect(lastResponse?.status).toBe(429);
+    expect(lastResponse?.text).toMatch(/Too many requests/i);
   });
 });
