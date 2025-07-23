@@ -10,7 +10,7 @@ import {
   isPasswordSafe,
 } from "@/modules/auth/password";
 import { Router } from "express";
-import { generateCSRFToken, generateJWToken } from "./jwt";
+import { generateJWToken } from "./jwt";
 import { loginSchema, registerSchema } from "./schemas";
 
 export default Router()
@@ -30,13 +30,10 @@ export default Router()
         throw new InvalidCredentialsError();
       }
 
-      const csrfToken = generateCSRFToken();
       const token = generateJWToken({
         userId: user.userId,
         email: user.email,
-        csrfToken,
       });
-
       return res.json({ token }).send();
     }
   )
