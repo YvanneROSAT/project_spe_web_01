@@ -11,7 +11,12 @@ export default winston.createLogger({
   transports: [
     new winston.transports.Console(),
     ...(process.env.NODE_ENV !== "dev"
-      ? [new winston.transports.File({ filename: "app.log" })]
+      ? [
+          new winston.transports.File({
+            filename: "app.log",
+            format: winston.format.json(),
+          }),
+        ]
       : []),
   ],
 });
