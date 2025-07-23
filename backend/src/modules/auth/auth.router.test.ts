@@ -5,7 +5,7 @@ import authRouter from "./auth.router"; // adjust path
 
 const mGetUserByEmail = vi.hoisted(() => vi.fn());
 const mCreateUser = vi.hoisted(() => vi.fn());
-vi.mock("@/modules/auth/auth.service", () => ({
+vi.mock("./auth.service", () => ({
   getUserByEmail: mGetUserByEmail,
   createUser: mCreateUser,
 }));
@@ -13,7 +13,7 @@ vi.mock("@/modules/auth/auth.service", () => ({
 const mGetIsPasswordSafe = vi.hoisted(() => vi.fn());
 const mComparePassword = vi.hoisted(() => vi.fn());
 const mHashPassword = vi.hoisted(() => vi.fn());
-vi.mock("@/modules/auth/password", () => ({
+vi.mock("./password", () => ({
   getIsPasswordSafe: mGetIsPasswordSafe,
   comparePassword: mComparePassword,
   hashPassword: mHashPassword,
