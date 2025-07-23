@@ -1,4 +1,5 @@
 import { AppError } from "@/app-error";
+import logger from "@/logger";
 import { NextFunction, Request, Response } from "express";
 
 export function errorHandler(
@@ -11,7 +12,8 @@ export function errorHandler(
     return res.status(err.status).send(err.message);
   }
 
-  console.error(err);
+  logger.error(err);
+
   res.status(500).send("Internal server error");
 }
 

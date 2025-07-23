@@ -5,6 +5,7 @@ import { z } from "zod";
 
 const envSchema = z.object({
   NODE_ENV: z.enum(["dev", "production"]).default("production"),
+  LOG_LEVEL: z.enum(["debug", "info"]).default("info"),
   JWT_SECRET: z.string(),
   PORT: z.string().transform((v) => parseInt(v)),
   DB_HOST: z.string().default("localhost"),
