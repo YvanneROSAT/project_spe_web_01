@@ -1,11 +1,11 @@
-import { FAKE_PASSWORD_HASH, JWT_TOKEN_KEY } from "@/config";
+import { CSRF_TOKEN_KEY, FAKE_PASSWORD_HASH, JWT_TOKEN_KEY } from "@/config";
 import { db } from "@/db/connection";
 import { requireAuth } from "@/middlewares/requireAuth";
 import { validateRequestBody } from "@/middlewares/validateRequestBody";
 import { createUser, getUserByEmail } from "@/modules/auth/auth.service";
 import { comparePassword, hashPassword } from "@/modules/auth/password";
 import { Router } from "express";
-import { generateJWToken } from "./jwt";
+import { generateCSRFToken, generateJWToken } from "./jwt";
 import { loginSchema, registerSchema } from "./schemas";
 
 export default Router()
@@ -22,14 +22,22 @@ export default Router()
       return res.sendStatus(403);
     }
 
-    const token = generateJWToken({ userId: user.userId, email: user.email });
+    const csrfToken = generateCSRFToken();
+    const token = generateJWToken({
+      userId: user.userId,
+      email: user.email,
+      csrfToken,
+    });
 
     return res
       .cookie(JWT_TOKEN_KEY, token, {
         sameSite: "strict",
         httpOnly: true,
-        secure: true,
+        secure: process.env.NODE_ENV !== "dev",
         maxAge: 15 * 60 * 1000, // 15mins
+      })
+      .cookie(CSRF_TOKEN_KEY, csrfToken, {
+        secure: true,
       })
       .send();
   })
@@ -51,8 +59,8 @@ export default Router()
       return res.sendStatus(200);
     }
   )
-  // todo: remove in prod
-  .get("/dev", requireAuth(), async function (_req, res) {
+  // todo: for tesging purposes, remove in prod
+  .get("/dev", requireAuth(true), async function (_req, res) {
     if (process.env.NODE_ENV !== "dev") {
       return res.sendStatus(404);
     }
