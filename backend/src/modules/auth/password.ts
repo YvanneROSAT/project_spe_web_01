@@ -1,19 +1,9 @@
 import { BCRYPT_SALT_ROUNDS } from "@/config";
 import bcrypt from "bcrypt";
 import crypto from "crypto";
+import { getHIBPMatches } from "./hibp";
 
-export async function getHIBPMatches(prefix: string): Promise<string[]> {
-  try {
-    const res = await fetch(`https://api.pwnedpasswords.com/range/${prefix}`);
-    const text = await res.text();
-
-    return res.ok ? text.split("\n") : [];
-  } catch {
-    return [];
-  }
-}
-
-export async function isPasswordSafe(password: string): Promise<boolean> {
+export async function getIsPasswordSafe(password: string): Promise<boolean> {
   const hash = crypto
     .createHash("sha1")
     .update(password)

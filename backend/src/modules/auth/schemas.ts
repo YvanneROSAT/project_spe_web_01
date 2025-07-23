@@ -22,6 +22,5 @@ export const registerSchema = z.object({
 export const authPayloadSchema = z.object({
   userId: z.cuid2(),
   email: emailField,
-  csrfToken: z.string().optional(),
 });
 export type AuthPayload = z.infer<typeof authPayloadSchema>;

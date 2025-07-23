@@ -6,8 +6,8 @@ import { validateRequest } from "@/middlewares/validateRequest";
 import { createUser, getUserByEmail } from "@/modules/auth/auth.service";
 import {
   comparePassword,
+  getIsPasswordSafe,
   hashPassword,
-  isPasswordSafe,
 } from "@/modules/auth/password";
 import { Router } from "express";
 import { generateJWToken } from "./jwt";
@@ -46,8 +46,8 @@ export default Router()
         throw new InvalidCredentialsError();
       }
 
-      const passwordIsSafe = await isPasswordSafe(req.body.password);
-      if (!passwordIsSafe) {
+      const isPasswordSafe = await getIsPasswordSafe(req.body.password);
+      if (!isPasswordSafe) {
         throw new InvalidCredentialsError();
       }
 
