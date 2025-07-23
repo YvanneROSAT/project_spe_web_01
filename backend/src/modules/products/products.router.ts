@@ -29,4 +29,21 @@ export default Router()
 
       res.json({ product });
     }
+  )
+  .patch(
+    "/:productId",
+    validateRequest({
+      params: z.object({
+        productId: z.cuid2(),
+      }),
+      body: z.object({
+        label: z.string().optional(),
+        description: z.string().optional(),
+        price: z.string().optional(),
+        categoryId: z.string().optional(),
+      }),
+    }),
+    async function (req, res) {
+      const result = await {};
+    }
   );
