@@ -1,9 +1,17 @@
 import { InternalServerError, InvalidCredentialsError } from "@/app-error";
-import { FAKE_PASSWORD_HASH } from "@/config";
+import {
+  FAKE_PASSWORD_HASH,
+  REFRESH_TOKEN_COOKIE_NAME,
+  REFRESH_TOKEN_COOKIE_OPTIONS,
+} from "@/config";
 import { db } from "@/db/connection";
-import { requireAuth } from "@/middlewares/requireAuth";
+import { authenticate } from "@/middlewares/authenticate";
 import { validateRequest } from "@/middlewares/validateRequest";
-import { createUser, getUserByEmail } from "@/modules/auth/auth.service";
+import {
+  createSession,
+  createUser,
+  getUserByEmail,
+} from "@/modules/auth/auth.service";
 import {
   comparePassword,
   getIsPasswordSafe,
@@ -11,7 +19,7 @@ import {
 } from "@/modules/auth/password";
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
-import { generateJWToken } from "./jwt";
+import { generateAccessToken, generateRefreshToken } from "./jwt";
 import { loginSchema, registerSchema } from "./schemas";
 
 export default Router()
@@ -32,11 +40,32 @@ export default Router()
         throw new InvalidCredentialsError();
       }
 
-      const token = generateJWToken({
-        userId: user.userId,
-        email: user.email,
-      });
-      return res.json({ token }).send();
+      const accessToken = generateAccessToken(user.userId);
+      const refreshToken = generateRefreshToken();
+
+      const session = await createSession(
+        user.userId,
+        refreshToken,
+        req.headers["user-agent"] ?? "",
+        req.ip ?? ""
+      );
+
+      res
+        .cookie(
+          REFRESH_TOKEN_COOKIE_NAME,
+          refreshToken,
+          REFRESH_TOKEN_COOKIE_OPTIONS
+        )
+        .json({
+          accessToken,
+          user: {
+            id: user.userId,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+          },
+        })
+        .send();
     }
   )
   .post(
@@ -64,7 +93,7 @@ export default Router()
     }
   )
   // todo: for tesging purposes, remove in prod
-  .get("/dev", requireAuth, async function (_req, res) {
+  .get("/dev", authenticate, async function (_req, res) {
     if (process.env.NODE_ENV !== "dev") {
       return res.sendStatus(404);
     }

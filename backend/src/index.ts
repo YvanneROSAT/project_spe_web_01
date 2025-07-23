@@ -3,7 +3,6 @@ import "@/env";
 import logger from "@/logger";
 import errorHandler from "@/middlewares/errorHandler";
 import authRouter from "@/modules/auth/auth.router";
-import { AuthPayload } from "@/modules/auth/schemas";
 import productsRouter from "@/modules/products/products.router";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -27,7 +26,9 @@ app.listen(process.env.PORT, () => {
 declare global {
   namespace Express {
     export interface Request {
-      user: AuthPayload;
+      user: {
+        userId: string;
+      };
     }
   }
 }

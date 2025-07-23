@@ -13,6 +13,18 @@ export class InvalidCredentialsError extends AppError {
   }
 }
 
+export class SessionExpiredError extends AppError {
+  constructor() {
+    super("Session expired", 440);
+  }
+}
+
+export class ForbiddenError extends AppError {
+  constructor() {
+    super("Forbidden", 403);
+  }
+}
+
 export class InternalServerError extends AppError {
   constructor() {
     super("Internal server error", 500);

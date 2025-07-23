@@ -1,3 +1,5 @@
+import { CookieOptions } from "express";
+
 export const JWT_TOKEN_KEY = "token";
 export const BCRYPT_SALT_ROUNDS = 10;
 export const FAKE_PASSWORD_HASH =
@@ -10,3 +12,11 @@ export const DB_CONNECTION_CONFIG = {
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 } as const;
+
+export const REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
+export const REFRESH_TOKEN_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV !== "dev",
+  sameSite: "strict",
+  maxAge: 7 * 24 * 60 * 60 * 1000, // days
+} as const satisfies CookieOptions;
