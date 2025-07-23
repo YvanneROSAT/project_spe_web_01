@@ -1,6 +1,0 @@
-{
-	"dependencies": {
-		"@oslojs/encoding": "^1.1.0",
-		"@oslojs/crypto": "^1.0.1"
-	}
-}

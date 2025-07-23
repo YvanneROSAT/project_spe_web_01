@@ -20,3 +20,9 @@ export const registerSchema = z.object({
   email: emailField,
   password: passwordField,
 });
+
+export const authPayloadSchema = z.object({
+  userId: z.uuidv4(),
+  email: emailField,
+});
+export type AuthPayload = z.infer<typeof authPayloadSchema>;

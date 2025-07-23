@@ -1,17 +1,19 @@
 import "./env";
 
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
-import { JwtPayload } from "jsonwebtoken";
 import errorHandler from "./middlewares/errorHandler";
 import authRouter from "./modules/auth/auth.router";
+import { AuthPayload } from "./modules/auth/schemas";
 
 const app = express();
 app
   .use(helmet())
-  .use(cors())
+  .use(cors({ origin: process.env.FRONTEND_URL }))
   .use(express.json())
+  .use(cookieParser())
   .use("/auth", authRouter)
   .use(errorHandler);
 
@@ -20,7 +22,7 @@ app.listen(process.env.PORT);
 declare global {
   namespace Express {
     export interface Request {
-      user: string | JwtPayload;
+      user: AuthPayload;
     }
   }
 }

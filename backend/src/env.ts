@@ -15,6 +15,7 @@ const envSchema = z.object({
   DB_USER: z.string().default("root"),
   DB_PASSWORD: z.string(),
   DB_NAME: z.string().default("project_spe_web"),
+  FRONTEND_URL: z.url(),
 });
 
 envSchema.parse(process.env);

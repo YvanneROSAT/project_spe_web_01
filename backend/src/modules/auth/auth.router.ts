@@ -1,10 +1,13 @@
-import { FAKE_PASSWORD_HASH, JWT_SECRET } from "@/config";
+import { FAKE_PASSWORD_HASH, JWT_TOKEN_KEY } from "@/config";
 import { db } from "@/db/connection";
+import { usersTable } from "@/db/schema";
+import { requireAuth } from "@/middlewares/requireAuth";
 import { validateRequestBody } from "@/middlewares/validateRequestBody";
 import { createUser, getUserByEmail } from "@/modules/auth/auth.service";
 import { comparePassword, hashPassword } from "@/modules/auth/password";
+import { eq } from "drizzle-orm";
 import { Router } from "express";
-import jwt from "jsonwebtoken";
+import { generateJWToken } from "./jwt";
 import { loginSchema, registerSchema } from "./schemas";
 
 export default Router()
@@ -21,9 +24,16 @@ export default Router()
       return res.sendStatus(403);
     }
 
-    return res.json({
-      token: jwt.sign({ email: req.body.email }, JWT_SECRET),
-    });
+    const token = generateJWToken({ userId: user.userId, email: user.email });
+
+    return res
+      .cookie(JWT_TOKEN_KEY, token, {
+        sameSite: "strict",
+        httpOnly: true,
+        secure: true,
+        maxAge: 15 * 60 * 1000, // 15mins
+      })
+      .send();
   })
   .post(
     "/register",
@@ -40,11 +50,11 @@ export default Router()
         return res.sendStatus(500);
       }
 
-      return res.status(200);
+      return res.sendStatus(200);
     }
   )
   // todo: remove in prod
-  .get("/dev", async function (req, res) {
+  .get("/dev", requireAuth(), async function (_req, res) {
     if (process.env.NODE_ENV !== "dev") {
       return res.sendStatus(404);
     }
@@ -52,4 +62,11 @@ export default Router()
     const users = await db.query.usersTable.findMany();
 
     return res.json(users).send();
+  })
+  .delete("/", requireAuth(), async function (req, res) {
+    const result = await db
+      .delete(usersTable)
+      .where(eq(usersTable.email, req.user.email));
+
+    return res.sendStatus(result[0].affectedRows === 1 ? 200 : 404);
   });
