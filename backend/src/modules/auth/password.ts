@@ -1,7 +1,6 @@
 import { BCRYPT_SALT_ROUNDS } from "@/config";
-import { sha1 } from "@oslojs/crypto/sha1";
-import { encodeHexLowerCase } from "@oslojs/encoding";
 import bcrypt from "bcrypt";
+import crypto from "crypto";
 
 export async function getHIBPMatches(prefix: string): Promise<string[]> {
   try {
@@ -15,7 +14,11 @@ export async function getHIBPMatches(prefix: string): Promise<string[]> {
 }
 
 export async function isPasswordSafe(password: string): Promise<boolean> {
-  const hash = encodeHexLowerCase(sha1(new TextEncoder().encode(password)));
+  const hash = crypto
+    .createHash("sha1")
+    .update(password)
+    .digest("hex")
+    .toLowerCase();
   const prefix = hash.slice(0, 5);
   const suffix = hash.slice(5);
   const hibpMatches = await getHIBPMatches(prefix);
