@@ -1,10 +1,16 @@
 import dotenv from "dotenv";
-dotenv.config();
+import path from "path";
+dotenv.config({
+  path:
+    process.env.NODE_ENV === "test"
+      ? path.join(__dirname, "../.env.test")
+      : undefined,
+});
 
 import { z } from "zod";
 
 const envSchema = z.object({
-  NODE_ENV: z.enum(["dev", "production"]).default("production"),
+  NODE_ENV: z.enum(["dev", "production", "test"]).default("production"),
   LOG_LEVEL: z.enum(["debug", "info"]).default("info"),
   JWT_SECRET: z.string(),
   PORT: z.string().transform((v) => parseInt(v)),

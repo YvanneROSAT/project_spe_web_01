@@ -1,9 +1,14 @@
+import { InternalServerError, InvalidCredentialsError } from "@/app-error";
 import { CSRF_TOKEN_KEY, FAKE_PASSWORD_HASH, JWT_TOKEN_KEY } from "@/config";
 import { db } from "@/db/connection";
 import { requireAuth } from "@/middlewares/requireAuth";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { createUser, getUserByEmail } from "@/modules/auth/auth.service";
-import { comparePassword, hashPassword } from "@/modules/auth/password";
+import {
+  comparePassword,
+  hashPassword,
+  isPasswordSafe,
+} from "@/modules/auth/password";
 import { Router } from "express";
 import { generateCSRFToken, generateJWToken } from "./jwt";
 import { loginSchema, registerSchema } from "./schemas";
@@ -22,7 +27,7 @@ export default Router()
       );
       // crucial check of `user` existence to avoid login using "fakepassword"
       if (!user || !passwordMatch) {
-        return res.sendStatus(403);
+        throw new InvalidCredentialsError();
       }
 
       const csrfToken = generateCSRFToken();
@@ -51,13 +56,18 @@ export default Router()
     async function (req, res) {
       const user = await getUserByEmail(req.body.email);
       if (user) {
-        return res.sendStatus(403);
+        throw new InvalidCredentialsError();
+      }
+
+      const passwordIsSafe = await isPasswordSafe(req.body.password);
+      if (!passwordIsSafe) {
+        throw new InvalidCredentialsError();
       }
 
       const passwordHash = await hashPassword(req.body.password);
       const success = await createUser(req.body.email, passwordHash, req.body);
       if (!success) {
-        return res.sendStatus(500);
+        throw new InternalServerError();
       }
 
       return res.sendStatus(200);

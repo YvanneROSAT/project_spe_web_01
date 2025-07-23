@@ -1,11 +1,9 @@
 import z from "zod";
-import { isPasswordSafe } from "./password";
 
 const emailField = z.email({ pattern: z.regexes.rfc5322Email }).toLowerCase();
 const passwordField = z
   .string({ error: "Invalid password" })
-  .min(8, "Must be 8 characters or more")
-  .refine(isPasswordSafe);
+  .min(8, "Must be 8 characters or more");
 const firstNameField = z.string();
 const lastNameField = z.string();
 
