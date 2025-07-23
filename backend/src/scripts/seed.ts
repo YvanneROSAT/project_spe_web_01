@@ -1,11 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { db } from "../db/connection";
-import {
-  categoriesTable,
-  picturesTable,
-  productsTable,
-  usersTable,
-} from "../db/schema";
+import { categoriesTable, picturesTable, productsTable } from "../db/schema";
 import "../env";
 
 const CATEGORIES = ["Alimentation", "Ameublement", "Sport"];
@@ -67,13 +62,6 @@ async function seedPictures() {
 export async function seedDatabase(numberOfProducts: number = 50) {
   try {
     console.log("Starting database seeding...");
-
-    const res = await db
-      .select()
-      .from(usersTable)
-      .then((r) => console.log("db select:", r));
-
-    console.log(res);
 
     await seedCategories();
     await seedProducts(numberOfProducts);

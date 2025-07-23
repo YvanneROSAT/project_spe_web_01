@@ -1,3 +1,4 @@
+import { createId } from "@paralleldrive/cuid2";
 import { relations } from "drizzle-orm";
 import {
   boolean,
@@ -9,19 +10,18 @@ import {
   timestamp,
   varchar,
 } from "drizzle-orm/mysql-core";
-import { v4 as uuid } from "uuid";
 
 export const categoriesTable = mysqlTable("categories", {
   categoryId: varchar("Id_categories", { length: 36 })
     .primaryKey()
-    .$defaultFn(() => uuid()),
+    .$defaultFn(() => createId()),
   label: varchar("label", { length: 50 }),
 });
 
 export const usersTable = mysqlTable("users", {
   userId: varchar("Id_users", { length: 36 })
     .primaryKey()
-    .$defaultFn(() => uuid()),
+    .$defaultFn(() => createId()),
   lastName: varchar("last_name", { length: 50 }).notNull(),
   firstName: varchar("first_name", { length: 50 }).notNull(),
   email: varchar("email", { length: 320 }).unique().notNull(),
@@ -34,55 +34,41 @@ export const usersTable = mysqlTable("users", {
 export const productsTable = mysqlTable("products", {
   productId: varchar("Id_Products", { length: 36 })
     .primaryKey()
-    .$defaultFn(() => uuid()),
+    .$defaultFn(() => createId()),
   label: varchar("label", { length: 50 }),
   description: text("description"),
   price: decimal("price", { precision: 5, scale: 2 }),
-  categoryId: varchar("Id_categories", { length: 36 }).$defaultFn(() => uuid()),
+  categoryId: varchar("Id_categories", { length: 36 }).$defaultFn(() =>
+    createId()
+  ),
 });
 
 export const picturesTable = mysqlTable("pictures", {
   pictureId: varchar("Id_Picture", { length: 36 })
     .primaryKey()
-    .$defaultFn(() => uuid()),
+    .$defaultFn(() => createId()),
   path: varchar("path", { length: 150 }),
-  productId: varchar("Id_Products", { length: 36 }).$defaultFn(() => uuid()),
+  productId: varchar("Id_Products", { length: 36 }).$defaultFn(() =>
+    createId()
+  ),
 });
 
 export const cartTable = mysqlTable("cart", {
   cartId: varchar("Id_cart", { length: 36 })
     .primaryKey()
-    .$defaultFn(() => uuid()),
-  userId: varchar("Id_users", { length: 36 }).$defaultFn(() => uuid()),
-  productId: varchar("Id_Products", { length: 36 }).$defaultFn(() => uuid()),
+    .$defaultFn(() => createId()),
+  userId: varchar("Id_users", { length: 36 }).$defaultFn(() => createId()),
+  productId: varchar("Id_Products", { length: 36 }).$defaultFn(() =>
+    createId()
+  ),
   quantity: int("quantity").default(1),
   created_at: timestamp("created_at").defaultNow(),
 });
 
-export const user_sessions = mysqlTable("user_sessions", {
-  sessionId: varchar("Id_session", { length: 36 })
-    .primaryKey()
-    .$defaultFn(() => uuid()),
-  sessionToken: varchar("session_token", { length: 255 }).unique(),
-  usersId: varchar("Id_users", { length: 36 }).$defaultFn(() => uuid()),
-  expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export const csrf_tokens = mysqlTable("csrf_tokens", {
-  csrfId: varchar("Id_csrf", { length: 36 })
-    .primaryKey()
-    .$defaultFn(() => uuid()),
-  token: varchar("token", { length: 255 }).unique(),
-  usersId: varchar("Id_users", { length: 36 }).$defaultFn(() => uuid()),
-  expiresAt: timestamp("expires_at").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-});
-
-export const csp_reports = mysqlTable("csp_reports", {
+export const cspReports = mysqlTable("csp_reports", {
   reportId: varchar("Id_report", { length: 36 })
     .primaryKey()
-    .$defaultFn(() => uuid()),
+    .$defaultFn(() => createId()),
   reportData: json("report_data").notNull(),
   userAgent: varchar("user_agent", { length: 255 }),
   ipAddress: varchar("ip_address", { length: 45 }),
@@ -111,8 +97,6 @@ export const picturesRelations = relations(picturesTable, ({ one }) => ({
 
 export const usersRelations = relations(usersTable, ({ many }) => ({
   cartItems: many(cartTable),
-  sessions: many(user_sessions),
-  csrfTokens: many(csrf_tokens),
 }));
 
 export const cartRelations = relations(cartTable, ({ one }) => ({

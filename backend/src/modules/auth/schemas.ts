@@ -22,7 +22,7 @@ export const registerSchema = z.object({
 });
 
 export const authPayloadSchema = z.object({
-  userId: z.uuidv4(),
+  userId: z.cuid2(),
   email: emailField,
   csrfToken: z.string().optional(),
 });

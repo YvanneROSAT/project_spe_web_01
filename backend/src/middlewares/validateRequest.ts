@@ -11,19 +11,21 @@ async function validateAndFreeze<T extends z.ZodObject>(
 
 export function validateRequest<
   Body extends z.ZodObject,
-  Query extends z.ZodObject
+  Query extends z.ZodObject,
+  Params extends z.ZodObject
 >(schemas: {
   body?: Body;
   query?: Query;
+  params?: Params;
 }): RequestHandler<
-  unknown,
+  Readonly<z.infer<Params>>,
   unknown,
   Readonly<z.infer<Body>>,
   Readonly<z.infer<Query>>
 > {
   return async (req, res, next: NextFunction) => {
     try {
-      for (const key of ["body", "query"] as const) {
+      for (const key of ["body", "query", "params"] as const) {
         const schema = schemas[key];
         if (!schema) continue;
 
