@@ -8,7 +8,7 @@ export function errorHandler(
 ): void {
   console.error(err);
 
-  res.status(500).json({ error: err.message ?? "Internal server error" });
+  res.status(500).json({ error: "Internal server error" });
 }
 
 export default errorHandler;

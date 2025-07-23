@@ -1,6 +1,9 @@
 export const PORT = process.env.PORT;
+
 export const JWT_SECRET = process.env.JWT_SECRET;
 export const BCRYPT_SALT_ROUNDS = 10;
+export const FAKE_PASSWORD_HASH =
+  "$2b$10$CwTycUXWue0Thq9StjUM0uJ8eDl3pZAgUQmrc9hUlPZx4s8ZfrfG2";
 
 export const DB_CONNECTION_CONFIG = {
   host: process.env.DB_HOST,

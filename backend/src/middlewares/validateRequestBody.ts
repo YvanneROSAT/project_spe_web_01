@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import z from "zod";
 
 export interface ValidatedRequest<T extends z.ZodObject> extends Request {
-  body: z.infer<T>;
+  body: Readonly<z.infer<T>>;
 }
 
 export function validateRequestBody<T extends z.ZodObject>(schema: T) {
@@ -12,7 +12,7 @@ export function validateRequestBody<T extends z.ZodObject>(schema: T) {
     next: NextFunction
   ) {
     try {
-      await schema.parseAsync(req.body);
+      req.body = Object.freeze(await schema.parseAsync(req.body));
 
       next();
     } catch (error) {
