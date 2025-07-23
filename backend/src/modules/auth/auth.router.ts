@@ -10,6 +10,7 @@ import {
   hashPassword,
 } from "@/modules/auth/password";
 import { Router } from "express";
+import rateLimit from "express-rate-limit";
 import { generateJWToken } from "./jwt";
 import { loginSchema, registerSchema } from "./schemas";
 
@@ -17,6 +18,7 @@ export default Router()
   .post(
     "/login",
     validateRequest({ body: loginSchema }),
+    rateLimit({ limit: 10, windowMs: 60 * 1000 }),
     async function (req, res) {
       const user = await getUserByEmail(req.body.email);
       // an attacker could guess if a user is registered based on the response time
@@ -39,6 +41,7 @@ export default Router()
   )
   .post(
     "/register",
+    rateLimit({ limit: 10, windowMs: 60 * 1000 }),
     validateRequest({ body: registerSchema }),
     async function (req, res) {
       const user = await getUserByEmail(req.body.email);
