@@ -12,7 +12,7 @@ app
   .use(helmet())
   .use(cors())
   .use(express.json())
-  .use(authRouter)
+  .use("/auth", authRouter)
   .use(errorHandler);
 
 app.listen(process.env.PORT);
