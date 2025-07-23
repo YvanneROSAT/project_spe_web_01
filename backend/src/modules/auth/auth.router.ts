@@ -1,5 +1,5 @@
 import { InternalServerError, InvalidCredentialsError } from "@/app-error";
-import { CSRF_TOKEN_KEY, FAKE_PASSWORD_HASH, JWT_TOKEN_KEY } from "@/config";
+import { FAKE_PASSWORD_HASH } from "@/config";
 import { db } from "@/db/connection";
 import { requireAuth } from "@/middlewares/requireAuth";
 import { validateRequest } from "@/middlewares/validateRequest";
@@ -37,17 +37,7 @@ export default Router()
         csrfToken,
       });
 
-      return res
-        .cookie(JWT_TOKEN_KEY, token, {
-          sameSite: "strict",
-          httpOnly: true,
-          secure: process.env.NODE_ENV !== "dev",
-          maxAge: 15 * 60 * 1000, // 15mins
-        })
-        .cookie(CSRF_TOKEN_KEY, csrfToken, {
-          secure: true,
-        })
-        .send();
+      return res.json({ token }).send();
     }
   )
   .post(
