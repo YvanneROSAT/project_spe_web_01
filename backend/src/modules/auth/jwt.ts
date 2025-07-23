@@ -1,7 +1,7 @@
 import {
   ForbiddenError,
-  InternalServerError,
   SessionExpiredError,
+  TokenExpiredError,
 } from "@/app-error";
 import { REFRESH_TOKEN_COOKIE_OPTIONS } from "@/config";
 import { createId } from "@paralleldrive/cuid2";
@@ -71,11 +71,7 @@ export async function refreshTokens(
 ): Promise<[string, string]> {
   const payload = verifyRefreshToken(oldRefreshToken);
   if (!payload) {
-    throw new InternalServerError();
-  }
-
-  if (Date.now() >= payload.exp * 1000) {
-    throw new SessionExpiredError();
+    throw new TokenExpiredError();
   }
 
   const session = await getSession(payload.sessionId);

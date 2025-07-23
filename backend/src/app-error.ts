@@ -13,6 +13,12 @@ export class InvalidCredentialsError extends AppError {
   }
 }
 
+export class TokenExpiredError extends AppError {
+  constructor() {
+    super("Token expired", 440);
+  }
+}
+
 export class SessionExpiredError extends AppError {
   constructor() {
     super("Session expired", 440);

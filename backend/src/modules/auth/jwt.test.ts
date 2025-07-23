@@ -1,7 +1,13 @@
+import {
+  ForbiddenError,
+  SessionExpiredError,
+  TokenExpiredError,
+} from "@/app-error";
 import jwt from "jsonwebtoken";
 import { describe, expect, it, vi } from "vitest";
 import z from "zod";
 import {
+  compareToken,
   generateAccessToken,
   generateRefreshToken,
   hashToken,
@@ -93,5 +99,55 @@ describe("refreshTokens", () => {
       expect.any(String),
       expect.any(Date)
     );
+  });
+
+  it("should throw if refresh token expired", () => {
+    const mOldRefreshToken = jwt.sign({ exp: 0, sub: "userId123" }, mSecret);
+
+    expect(() => refreshTokens(mOldRefreshToken)).rejects.toThrow(
+      new TokenExpiredError()
+    );
+  });
+
+  it("should throw if session expired", () => {
+    const mOldRefreshToken = generateRefreshToken();
+    mGetSession.mockResolvedValueOnce({
+      expiresAt: 0,
+    });
+
+    expect(() => refreshTokens(mOldRefreshToken)).rejects.toThrow(
+      new SessionExpiredError()
+    );
+  });
+
+  it("should throw if refresh and session tokens don't match", () => {
+    const mOldRefreshToken = generateRefreshToken();
+    mGetSession.mockResolvedValueOnce({
+      tokenHash: hashToken("anything"),
+    });
+
+    expect(() => refreshTokens(mOldRefreshToken)).rejects.toThrow(
+      new ForbiddenError()
+    );
+  });
+});
+
+describe("hashToken", () => {
+  it("should return the token hash", () => {
+    const res = hashToken("anything");
+
+    expect(res).toBeDefined();
+    expect(res).toEqual(expect.any(String));
+  });
+});
+describe("compareToken", () => {
+  it("should compare tokens", () => {
+    const mSecret = "secret";
+    const mToken = jwt.sign({ foo: "bar" }, mSecret);
+
+    const tokenHash = hashToken(mToken);
+    const res = compareToken(mToken, tokenHash);
+
+    expect(res).toEqual(true);
   });
 });
