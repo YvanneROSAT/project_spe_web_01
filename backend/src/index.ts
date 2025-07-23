@@ -7,6 +7,7 @@ import helmet from "helmet";
 import errorHandler from "./middlewares/errorHandler";
 import authRouter from "./modules/auth/auth.router";
 import { AuthPayload } from "./modules/auth/schemas";
+import productsRouter from "./modules/products/products.router";
 
 const app = express();
 app
@@ -15,6 +16,7 @@ app
   .use(express.json())
   .use(cookieParser())
   .use("/auth", authRouter)
+  .use("/products", productsRouter)
   .use(errorHandler);
 
 app.listen(process.env.PORT);
