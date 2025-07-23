@@ -9,10 +9,9 @@ export function errorHandler(
 ) {
   if (err instanceof AppError) {
     return res.status(err.status).send(err.message);
-  } else {
-    console.error(err);
   }
 
+  console.error(err);
   res.status(500).send("Internal server error");
 }
 
