@@ -1,3 +1,4 @@
+import { Cart } from '../../../src/views/cart.js'
 import { Home } from './views/home.js'
 import { Login } from './views/login.js'
 import { ProductDetail } from './views/product-details.js'
@@ -10,6 +11,7 @@ const routes = {
   '#/register': Register,
   '#/products': ProductList,
   '#/product': ProductDetail,
+  '#/cart': Cart,
 }
 
 export function router() {
