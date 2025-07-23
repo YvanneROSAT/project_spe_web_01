@@ -1,11 +1,5 @@
 import dotenv from "dotenv";
-import path from "path";
-dotenv.config({
-  path:
-    process.env.NODE_ENV === "test"
-      ? path.join(__dirname, "../.env.test")
-      : undefined,
-});
+dotenv.config();
 
 import { z } from "zod";
 
