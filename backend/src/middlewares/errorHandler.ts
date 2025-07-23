@@ -12,7 +12,7 @@ export function errorHandler(
     return res.status(err.status).send(err.message);
   }
 
-  logger.error(err);
+  logger.error(err.message, err);
 
   res.status(500).send("Internal server error");
 }

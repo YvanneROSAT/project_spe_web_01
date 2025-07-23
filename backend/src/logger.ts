@@ -3,20 +3,15 @@ import winston from "winston";
 export default winston.createLogger({
   level: process.env.LOG_LEVEL,
   format: winston.format.combine(
+    winston.format.errors({ stack: true }),
     winston.format.timestamp(),
-    winston.format.printf(
-      (info) => `${info.timestamp} ${info.level}: ${info.message}`
-    )
+    winston.format.prettyPrint()
   ),
   transports: [
     new winston.transports.Console(),
-    ...(process.env.NODE_ENV !== "dev"
-      ? [
-          new winston.transports.File({
-            filename: "app.log",
-            format: winston.format.json(),
-          }),
-        ]
-      : []),
+    new winston.transports.File({
+      filename: "app.log",
+      level: "error",
+    }),
   ],
 });
