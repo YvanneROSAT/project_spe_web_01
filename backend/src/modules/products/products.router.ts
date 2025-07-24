@@ -1,7 +1,8 @@
 import { validateRequest } from "@/middlewares/validateRequest";
+import { cspForPublicStats } from "@/middlewares/csp";
 import { Router } from "express";
 import z from "zod";
-import { getProductById, getProducts } from "./products.service";
+import { getProductById, getProducts, getPublicStats } from "./products.service";
 
 export default Router()
   .get(
@@ -17,6 +18,21 @@ export default Router()
       res.json({ count: products.length, products }).send();
     }
   )
+  
+  // URL de statistiques publiques (accessible à toutes les IP) - AVANT /:productId
+  .get(
+    "/stats",
+    cspForPublicStats(), // CSP désactivé pour cette route
+    async function (req, res) {
+      try {
+        const stats = await getPublicStats();
+        res.json(stats);
+      } catch (error) {
+        res.status(500).json({ error: 'Erreur interne du serveur' });
+      }
+    }
+  )
+  
   .get(
     "/:productId",
     validateRequest({
@@ -45,5 +61,6 @@ export default Router()
     }),
     async function (req, res) {
       const result = await {};
+      res.json({ message: "Modification à implémenter" });
     }
   );

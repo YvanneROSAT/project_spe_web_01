@@ -38,9 +38,7 @@ export const productsTable = mysqlTable("products", {
   label: varchar("label", { length: 50 }),
   description: text("description"),
   price: decimal("price", { precision: 5, scale: 2 }),
-  categoryId: varchar("Id_categories", { length: 36 }).$defaultFn(() =>
-    createId()
-  ),
+  categoryId: varchar("Id_categories", { length: 36 }).notNull(),
 });
 
 export const picturesTable = mysqlTable("pictures", {
@@ -48,27 +46,21 @@ export const picturesTable = mysqlTable("pictures", {
     .primaryKey()
     .$defaultFn(() => createId()),
   path: varchar("path", { length: 150 }),
-  productId: varchar("Id_Products", { length: 36 }).$defaultFn(() =>
-    createId()
-  ),
+  productId: varchar("Id_Products", { length: 36 }).notNull(),
 });
 
 export const cartTable = mysqlTable("cart", {
   cartId: varchar("Id_cart", { length: 36 })
     .primaryKey()
     .$defaultFn(() => createId()),
-  userId: varchar("Id_users", { length: 36 }).$defaultFn(() => createId()),
-  productId: varchar("Id_Products", { length: 36 }).$defaultFn(() =>
-    createId()
-  ),
+  userId: varchar("Id_users", { length: 36 }).notNull(),
+  productId: varchar("Id_Products", { length: 36 }).notNull(),
   quantity: int("quantity").default(1),
   created_at: timestamp("created_at").defaultNow(),
 });
 
 export const cspReports = mysqlTable("csp_reports", {
-  reportId: varchar("Id_report", { length: 36 })
-    .primaryKey()
-    .$defaultFn(() => createId()),
+  reportId: int("Id_report").primaryKey().autoincrement(),
   reportData: json("report_data").notNull(),
   userAgent: varchar("user_agent", { length: 255 }),
   ipAddress: varchar("ip_address", { length: 45 }),
