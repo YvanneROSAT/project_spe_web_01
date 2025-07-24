@@ -5,8 +5,24 @@ import { UpdateProductInput } from "./products.schemas";
 
 const PRODUCTS_PER_PAGE = 20;
 
+function formatProduct(
+  p: typeof productsTable.$inferSelect,
+  c: typeof categoriesTable.$inferSelect | null
+) {
+  return {
+    id: p.productId,
+    label: p.label,
+    description: p.description,
+    price: p.price,
+    category: c && {
+      id: c.categoryId,
+      label: c.label,
+    },
+  };
+}
+
 export async function getProducts(page: number = 0) {
-  return db
+  const rows = await db
     .select()
     .from(productsTable)
     .leftJoin(
@@ -15,10 +31,16 @@ export async function getProducts(page: number = 0) {
     )
     .limit(PRODUCTS_PER_PAGE)
     .offset(page * PRODUCTS_PER_PAGE);
+
+  return rows.length > 0
+    ? rows.map(({ products, categories }) =>
+        formatProduct(products, categories)
+      )
+    : [];
 }
 
 export async function getProductById(id: string) {
-  const res = await db
+  const rows = await db
     .select()
     .from(productsTable)
     .leftJoin(
@@ -27,9 +49,9 @@ export async function getProductById(id: string) {
     )
     .where(eq(productsTable.productId, id));
 
-  console.log(res);
-
-  return res.length === 1 ? res[0] : null;
+  return rows.length === 1
+    ? formatProduct(rows[0].products, rows[0].categories)
+    : null;
 }
 
 export async function updateProduct(
