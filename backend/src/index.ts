@@ -3,12 +3,12 @@ import "@/env";
 import logger from "@/logger";
 import errorHandler from "@/middlewares/errorHandler";
 import authRouter from "@/modules/auth/auth.router";
-import { AuthPayload } from "@/modules/auth/schemas";
 import productsRouter from "@/modules/products/products.router";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
+import { authenticate } from "./middlewares/authenticate";
 
 const app = express();
 app
@@ -16,6 +16,7 @@ app
   .use(cors({ origin: process.env.FRONTEND_URL }))
   .use(express.json())
   .use(cookieParser())
+  .use(authenticate)
   .use("/auth", authRouter)
   .use("/products", productsRouter)
   .use(errorHandler);
@@ -27,7 +28,9 @@ app.listen(process.env.PORT, () => {
 declare global {
   namespace Express {
     export interface Request {
-      user: AuthPayload;
+      user: {
+        userId: string;
+      };
     }
   }
 }

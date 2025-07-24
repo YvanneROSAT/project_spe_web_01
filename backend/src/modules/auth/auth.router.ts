@@ -1,22 +1,41 @@
-import { InternalServerError, InvalidCredentialsError } from "@/app-error";
-import { FAKE_PASSWORD_HASH } from "@/config";
+import { InternalServerError } from "@/app-error";
+import {
+  FAKE_PASSWORD_HASH,
+  REFRESH_TOKEN_COOKIE_NAME,
+  REFRESH_TOKEN_COOKIE_OPTIONS,
+} from "@/config";
 import { db } from "@/db/connection";
 import { requireAuth } from "@/middlewares/requireAuth";
 import { validateRequest } from "@/middlewares/validateRequest";
-import { createUser, getUserByEmail } from "@/modules/auth/auth.service";
+import {
+  createSession,
+  createUser,
+  getUserByEmail,
+  invalidateSession,
+} from "@/modules/auth/auth.service";
 import {
   comparePassword,
+  getIsPasswordSafe,
   hashPassword,
-  isPasswordSafe,
 } from "@/modules/auth/password";
 import { Router } from "express";
-import { generateCSRFToken, generateJWToken } from "./jwt";
-import { loginSchema, registerSchema } from "./schemas";
+import rateLimit from "express-rate-limit";
+import { InvalidCredentialsError } from "./auth.errors";
+import { loginSchema, registerSchema } from "./auth.schemas";
+import {
+  blacklistAccessToken,
+  generateAccessToken,
+  generateRefreshToken,
+  getAccessTokenFromRequest,
+  getRefreshTokenFromRequest,
+  verifyRefreshToken,
+} from "./jwt";
 
 export default Router()
   .post(
     "/login",
     validateRequest({ body: loginSchema }),
+    rateLimit({ limit: 10, windowMs: 60 * 1000 }),
     async function (req, res) {
       const user = await getUserByEmail(req.body.email);
       // an attacker could guess if a user is registered based on the response time
@@ -30,18 +49,36 @@ export default Router()
         throw new InvalidCredentialsError();
       }
 
-      const csrfToken = generateCSRFToken();
-      const token = generateJWToken({
-        userId: user.userId,
-        email: user.email,
-        csrfToken,
-      });
+      const accessToken = generateAccessToken(user.userId);
+      const refreshToken = generateRefreshToken();
 
-      return res.json({ token }).send();
+      await createSession(
+        user.userId,
+        refreshToken,
+        req.headers["user-agent"] ?? "",
+        req.ip ?? ""
+      );
+
+      res
+        .cookie(
+          REFRESH_TOKEN_COOKIE_NAME,
+          refreshToken,
+          REFRESH_TOKEN_COOKIE_OPTIONS
+        )
+        .json({
+          accessToken,
+          user: {
+            id: user.userId,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+          },
+        });
     }
   )
   .post(
     "/register",
+    rateLimit({ limit: 10, windowMs: 60 * 1000 }),
     validateRequest({ body: registerSchema }),
     async function (req, res) {
       const user = await getUserByEmail(req.body.email);
@@ -49,8 +86,8 @@ export default Router()
         throw new InvalidCredentialsError();
       }
 
-      const passwordIsSafe = await isPasswordSafe(req.body.password);
-      if (!passwordIsSafe) {
+      const isPasswordSafe = await getIsPasswordSafe(req.body.password);
+      if (!isPasswordSafe) {
         throw new InvalidCredentialsError();
       }
 
@@ -63,8 +100,28 @@ export default Router()
       return res.sendStatus(200);
     }
   )
-  // todo: for tesging purposes, remove in prod
-  .get("/dev", requireAuth(true), async function (_req, res) {
+  .delete("/logout", requireAuth, async function (req, res) {
+    const refreshToken = getRefreshTokenFromRequest(req);
+    const accessToken = getAccessTokenFromRequest(req);
+
+    if (accessToken) {
+      await blacklistAccessToken(accessToken);
+    }
+
+    if (refreshToken) {
+      const payload = verifyRefreshToken(refreshToken);
+
+      if (payload) {
+        await invalidateSession(payload.sessionId);
+      }
+
+      res.clearCookie(REFRESH_TOKEN_COOKIE_NAME);
+    }
+
+    res.send();
+  })
+  // todo: for testing purposes, remove in prod
+  .get("/dev", requireAuth, async function (req, res) {
     if (process.env.NODE_ENV !== "dev") {
       return res.sendStatus(404);
     }

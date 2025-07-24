@@ -1,7 +1,11 @@
+import { removeUndefinedFromObject } from "@/helpers";
+import { requireAuth } from "@/middlewares/requireAuth";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { Router } from "express";
 import z from "zod";
-import { getProductById, getProducts } from "./products.service";
+import { ProductNotFoundError } from "./products.errors";
+import { updateProductSchema } from "./products.schemas";
+import { getProductById, getProducts, updateProduct } from "./products.service";
 
 export default Router()
   .get(
@@ -36,14 +40,18 @@ export default Router()
       params: z.object({
         productId: z.cuid2(),
       }),
-      body: z.object({
-        label: z.string().optional(),
-        description: z.string().optional(),
-        price: z.string().optional(),
-        categoryId: z.string().optional(),
-      }),
+      body: updateProductSchema,
     }),
+    requireAuth,
     async function (req, res) {
-      const result = await {};
+      const productId = req.params.productId;
+      const fieldsToUpdate = removeUndefinedFromObject(req.body);
+
+      const success = await updateProduct(productId, fieldsToUpdate);
+      if (!success) {
+        throw new ProductNotFoundError();
+      }
+
+      res.send();
     }
   );

@@ -9,7 +9,7 @@ export function errorHandler(
   _next: NextFunction
 ) {
   if (err instanceof AppError) {
-    return res.status(err.status).send(err.message);
+    return res.status(err.status).send(err.code);
   }
 
   logger.error(err.message, err);
