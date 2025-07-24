@@ -17,7 +17,7 @@ export const categoriesTable = mysqlTable("categories", {
   categoryId: varchar("Id_categories", { length: 36 })
     .primaryKey()
     .$defaultFn(() => createId()),
-  label: varchar("label", { length: 50 }),
+  label: varchar("label", { length: 50 }).notNull(),
 });
 
 export const usersTable = mysqlTable("users", {
