@@ -30,6 +30,9 @@ export default Router()
     }),
     async function (req, res) {
       const product = await getProductById(req.params.productId);
+      if (!product) {
+        throw new ProductNotFoundError();
+      }
 
       res.json({ product });
     }
