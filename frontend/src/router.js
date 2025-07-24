@@ -1,4 +1,9 @@
 import { Cart } from '../../../src/views/cart.js'
+import { Logout } from '../../../src/views/logout.js'
+import { AddProduct } from './views/add-product.js'
+import { Dashboard } from './views/dashboard.js'
+import { ConfirmDeleteProduct } from './views/delete-product.js'
+import { EditProduct } from './views/edit-product.js'
 import { Home } from './views/home.js'
 import { Login } from './views/login.js'
 import { ProductDetail } from './views/product-details.js'
@@ -12,6 +17,11 @@ const routes = {
   '#/products': ProductList,
   '#/product': ProductDetail,
   '#/cart': Cart,
+  '#/dashboard': Dashboard,
+  '#/logout': Logout,
+  '#/add-product': AddProduct,
+  '#/edit-product': EditProduct,
+  '#/delete-product': ConfirmDeleteProduct,
 }
 
 export function router() {
