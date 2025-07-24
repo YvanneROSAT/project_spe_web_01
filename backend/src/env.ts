@@ -9,7 +9,7 @@ const envSchema = z.object({
   // general
   NODE_ENV: z.enum(["dev", "production", "test"]).default("production"),
   LOG_LEVEL: z.enum(["debug", "info"]).default("info"),
-  PORT: z.string().transform((v) => parseInt(v)),
+  PORT: z.coerce.number().default(3000),
   FRONTEND_URL: z.url(),
 
   // auth
@@ -18,10 +18,7 @@ const envSchema = z.object({
 
   // db
   DB_HOST: z.string().default("localhost"),
-  DB_PORT: z
-    .string()
-    .transform((v) => parseInt(v))
-    .default(3306),
+  DB_PORT: z.coerce.number().default(3306),
   DB_USER: z.string().default("root"),
   DB_PASSWORD: z.string(),
   DB_NAME: z.string().default("project_spe_web"),
