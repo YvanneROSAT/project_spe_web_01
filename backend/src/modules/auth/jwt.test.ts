@@ -1,9 +1,9 @@
+import { REDIS_TOKEN_BLACKLIST_KEY, REFRESH_TOKEN_COOKIE_NAME } from "@/config";
 import {
   ForbiddenError,
   SessionExpiredError,
   TokenExpiredError,
-} from "@/app-error";
-import { REDIS_TOKEN_BLACKLIST_KEY, REFRESH_TOKEN_COOKIE_NAME } from "@/config";
+} from "@/modules/auth/auth.errors";
 import { createId } from "@paralleldrive/cuid2";
 import { Request } from "express";
 import jwt from "jsonwebtoken";

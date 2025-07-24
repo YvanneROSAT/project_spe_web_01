@@ -1,26 +1,26 @@
-import {
-  ForbiddenError,
-  SessionExpiredError,
-  TokenExpiredError,
-} from "@/app-error";
 import { redis } from "@/cache";
 import {
   REDIS_TOKEN_BLACKLIST_KEY,
   REFRESH_TOKEN_COOKIE_NAME,
   REFRESH_TOKEN_COOKIE_OPTIONS,
 } from "@/config";
+import {
+  ForbiddenError,
+  SessionExpiredError,
+  TokenExpiredError,
+} from "@/modules/auth/auth.errors";
 import { createId } from "@paralleldrive/cuid2";
 import bcrypt from "bcrypt";
 import { Request } from "express";
 import jwt from "jsonwebtoken";
 import z from "zod";
-import { getSession, updateSession } from "./auth.service";
 import {
   AccessTokenPayload,
   accessTokenPayloadSchema,
   RefreshTokenPayload,
   refreshTokenPayloadSchema,
-} from "./schemas";
+} from "./auth.schemas";
+import { getSession, updateSession } from "./auth.service";
 
 export function generateAccessToken(userId: string): string {
   return jwt.sign(

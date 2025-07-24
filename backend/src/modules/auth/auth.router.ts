@@ -1,4 +1,4 @@
-import { InternalServerError, InvalidCredentialsError } from "@/app-error";
+import { InternalServerError } from "@/app-error";
 import {
   FAKE_PASSWORD_HASH,
   REFRESH_TOKEN_COOKIE_NAME,
@@ -20,6 +20,8 @@ import {
 } from "@/modules/auth/password";
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
+import { InvalidCredentialsError } from "./auth.errors";
+import { loginSchema, registerSchema } from "./auth.schemas";
 import {
   blacklistAccessToken,
   generateAccessToken,
@@ -28,7 +30,6 @@ import {
   getRefreshTokenFromRequest,
   verifyRefreshToken,
 } from "./jwt";
-import { loginSchema, registerSchema } from "./schemas";
 
 export default Router()
   .post(
