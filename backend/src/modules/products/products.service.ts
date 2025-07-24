@@ -22,7 +22,7 @@ function formatProduct(
 }
 
 export async function getProducts(query: string, page: number = 0) {
-  const rows = await db
+  return await db
     .select()
     .from(productsTable)
     .leftJoin(
@@ -31,46 +31,44 @@ export async function getProducts(query: string, page: number = 0) {
     )
     .where(like(sql`lower(${productsTable.label})`, `%${query.toLowerCase()}%`))
     .limit(PRODUCTS_PER_PAGE)
-    .offset(page * PRODUCTS_PER_PAGE);
-
-  return rows.length > 0
-    ? rows.map(({ products, categories }) =>
+    .offset(page * PRODUCTS_PER_PAGE)
+    .then((rows) =>
+      rows.map(({ products, categories }) =>
         formatProduct(products, categories)
       )
-    : [];
+    );
 }
 
 export async function getProductById(id: string) {
-  const rows = await db
+  return db
     .select()
     .from(productsTable)
     .leftJoin(
       categoriesTable,
       eq(productsTable.categoryId, categoriesTable.categoryId)
     )
-    .where(eq(productsTable.productId, id));
-
-  return rows.length === 1
-    ? formatProduct(rows[0].products, rows[0].categories)
-    : null;
+    .where(eq(productsTable.productId, id))
+    .then((rows) =>
+      rows.length === 1
+        ? formatProduct(rows[0].products, rows[1].categories)
+        : null
+    );
 }
 
 export async function updateProduct(
   productId: string,
   input: UpdateProductInput
 ): Promise<boolean> {
-  const res = await db
+  return db
     .update(productsTable)
     .set(input)
-    .where(eq(productsTable.productId, productId));
-
-  return res[0].affectedRows > 0;
+    .where(eq(productsTable.productId, productId))
+    .then(([resultSet]) => resultSet.affectedRows > 0);
 }
 
 export async function deleteProduct(productId: string): Promise<boolean> {
-  const res = await db
+  return db
     .delete(productsTable)
-    .where(eq(productsTable.productId, productId));
-
-  return res[0].affectedRows > 0;
+    .where(eq(productsTable.productId, productId))
+    .then(([resultSet]) => resultSet.affectedRows > 0);
 }
