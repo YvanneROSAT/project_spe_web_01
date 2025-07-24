@@ -1,6 +1,6 @@
 import { db } from "@/db/connection";
 import { categoriesTable, productsTable } from "@/db/schema";
-import { eq } from "drizzle-orm";
+import { eq, like, sql } from "drizzle-orm";
 import { UpdateProductInput } from "./products.schemas";
 
 const PRODUCTS_PER_PAGE = 20;
@@ -21,7 +21,7 @@ function formatProduct(
   };
 }
 
-export async function getProducts(page: number = 0) {
+export async function getProducts(query: string, page: number = 0) {
   const rows = await db
     .select()
     .from(productsTable)
@@ -29,6 +29,7 @@ export async function getProducts(page: number = 0) {
       categoriesTable,
       eq(productsTable.categoryId, categoriesTable.categoryId)
     )
+    .where(like(sql`lower(${productsTable.label})`, `%${query.toLowerCase()}%`))
     .limit(PRODUCTS_PER_PAGE)
     .offset(page * PRODUCTS_PER_PAGE);
 

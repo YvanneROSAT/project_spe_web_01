@@ -17,14 +17,17 @@ import {
 
 export default Router()
   .get(
-    "/all",
+    "/search",
     validateRequest({
       query: z.object({
+        query: z.string(),
         page: z.coerce.number(),
       }),
     }),
     async function (req, res) {
-      const products = await getProducts(req.query.page);
+      const { query, page } = req.query;
+
+      const products = await getProducts(query, page);
 
       res.json({ count: products.length, products }).send();
     }
@@ -51,7 +54,7 @@ export default Router()
     }),
     requireAuth, // todo: determine who can update products
     async function (req, res) {
-      const productId = req.params.productId;
+      const { productId } = req.params;
       const fieldsToUpdate = removeUndefinedFromObject(req.body);
 
       const success = await updateProduct(productId, fieldsToUpdate);
@@ -69,7 +72,7 @@ export default Router()
     }),
     requireAuth, // todo: determine who can delete products
     async function (req, res) {
-      const productId = req.params.productId;
+      const { productId } = req.params;
 
       const success = await deleteProduct(productId);
       if (!success) {
