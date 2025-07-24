@@ -24,7 +24,7 @@ async function seedProducts(numberOfProducts: number = 50) {
       label: faker.commerce.productName(),
       description: faker.commerce.productDescription(),
       price: faker.commerce.price({ min: 5, max: 500, dec: 2 }),
-      Id_categories: category.categoryId!,
+      categoryId: category.categoryId,
     });
   }
 
@@ -51,7 +51,7 @@ async function seedPictures() {
     for (let i = 1; i <= imageCount; i++) {
       picturesData.push({
         path: `./image/${categoryName}/${productName}/img${i}.png`,
-        Id_Products: product.productId!,
+        productId: product.productId!,
       });
     }
   }
