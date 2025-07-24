@@ -5,12 +5,13 @@ import {
   REFRESH_TOKEN_COOKIE_OPTIONS,
 } from "@/config";
 import { db } from "@/db/connection";
-import { authenticate } from "@/middlewares/authenticate";
+import { requireAuth } from "@/middlewares/requireAuth";
 import { validateRequest } from "@/middlewares/validateRequest";
 import {
   createSession,
   createUser,
   getUserByEmail,
+  invalidateSession,
 } from "@/modules/auth/auth.service";
 import {
   comparePassword,
@@ -19,7 +20,14 @@ import {
 } from "@/modules/auth/password";
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
-import { generateAccessToken, generateRefreshToken } from "./jwt";
+import {
+  blacklistAccessToken,
+  generateAccessToken,
+  generateRefreshToken,
+  getAccessTokenFromRequest,
+  getRefreshTokenFromRequest,
+  verifyRefreshToken,
+} from "./jwt";
 import { loginSchema, registerSchema } from "./schemas";
 
 export default Router()
@@ -91,8 +99,28 @@ export default Router()
       return res.sendStatus(200);
     }
   )
-  // todo: for tesging purposes, remove in prod
-  .get("/dev", authenticate, async function (_req, res) {
+  .delete("/logout", requireAuth, async function (req, res) {
+    const refreshToken = getRefreshTokenFromRequest(req);
+    const accessToken = getAccessTokenFromRequest(req);
+
+    if (accessToken) {
+      await blacklistAccessToken(accessToken);
+    }
+
+    if (refreshToken) {
+      const payload = verifyRefreshToken(refreshToken);
+
+      if (payload) {
+        await invalidateSession(payload.sessionId);
+      }
+
+      res.clearCookie(REFRESH_TOKEN_COOKIE_NAME);
+    }
+
+    res.send();
+  })
+  // todo: for testing purposes, remove in prod
+  .get("/dev", requireAuth, async function (req, res) {
     if (process.env.NODE_ENV !== "dev") {
       return res.sendStatus(404);
     }

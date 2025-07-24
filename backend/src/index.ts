@@ -8,6 +8,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
 import helmet from "helmet";
+import { authenticate } from "./middlewares/authenticate";
 
 const app = express();
 app
@@ -15,6 +16,7 @@ app
   .use(cors({ origin: process.env.FRONTEND_URL }))
   .use(express.json())
   .use(cookieParser())
+  .use(authenticate)
   .use("/auth", authRouter)
   .use("/products", productsRouter)
   .use(errorHandler);

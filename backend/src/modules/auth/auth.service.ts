@@ -69,3 +69,7 @@ export async function updateSession(
     })
     .where(eq(sessionsTable.sessionId, sessionId));
 }
+
+export async function invalidateSession(sessionId: string) {
+  await db.delete(sessionsTable).where(eq(sessionsTable.sessionId, sessionId));
+}

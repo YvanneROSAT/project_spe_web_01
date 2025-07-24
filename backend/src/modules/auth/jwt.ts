@@ -3,9 +3,14 @@ import {
   SessionExpiredError,
   TokenExpiredError,
 } from "@/app-error";
-import { REFRESH_TOKEN_COOKIE_OPTIONS } from "@/config";
+import { redis } from "@/cache";
+import {
+  REFRESH_TOKEN_COOKIE_NAME,
+  REFRESH_TOKEN_COOKIE_OPTIONS,
+} from "@/config";
 import { createId } from "@paralleldrive/cuid2";
 import bcrypt from "bcrypt";
+import { Request } from "express";
 import jwt from "jsonwebtoken";
 import z from "zod";
 import { getSession, updateSession } from "./auth.service";
@@ -18,10 +23,10 @@ import {
 
 export function generateAccessToken(userId: string): string {
   return jwt.sign(
-    { sub: userId } satisfies AccessTokenPayload,
+    { sub: userId } satisfies Omit<AccessTokenPayload, "exp">,
     process.env.ACCESS_TOKEN_SECRET,
     {
-      expiresIn: "2min",
+      expiresIn: "30s",
     }
   );
 }
@@ -101,4 +106,26 @@ export function hashToken(token: string): string {
 
 export function compareToken(token: string, tokenHash: string): boolean {
   return bcrypt.compareSync(token, tokenHash);
+}
+
+export function getAccessTokenFromRequest(req: Request): string | null {
+  return req.headers.authorization?.split(" ")[1] ?? null;
+}
+
+export function getRefreshTokenFromRequest(req: Request): string | null {
+  return req.cookies?.[REFRESH_TOKEN_COOKIE_NAME] ?? null;
+}
+
+export async function blacklistAccessToken(accessToken: string) {
+  const payload = jwt.decode(accessToken);
+  if (typeof payload === "string" || !payload?.exp) {
+    return;
+  }
+
+  const ttlSeconds = Math.max(0, payload.exp - Math.floor(Date.now() / 1000));
+  await redis.set(`blacklist:${accessToken}`, "1", "EX", ttlSeconds);
+}
+
+export async function getIsTokenBlacklisted(token: string): Promise<boolean> {
+  return (await redis.exists(`blacklist:${token}`)) === 1;
 }

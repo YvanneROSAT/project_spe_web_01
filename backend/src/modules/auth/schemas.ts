@@ -21,6 +21,7 @@ export const registerSchema = z.object({
 
 export const accessTokenPayloadSchema = z.object({
   sub: z.cuid2(),
+  exp: z.number(),
 });
 export type AccessTokenPayload = z.infer<typeof accessTokenPayloadSchema>;
 

@@ -8,13 +8,18 @@ import { z } from "zod";
 const envSchema = z.object({
   // general
   NODE_ENV: z.enum(["dev", "production", "test"]).default("production"),
-  LOG_LEVEL: z.enum(["debug", "info"]).default("info"),
+  LOG_LEVEL: z.enum(["debug", "info", "error"]).default("info"),
   PORT: z.coerce.number().default(3000),
   FRONTEND_URL: z.url(),
 
   // auth
   ACCESS_TOKEN_SECRET: z.string(),
   REFRESH_TOKEN_SECRET: z.string(),
+
+  // redis
+  REDIS_HOST: z.string().default("localhost"),
+  REDIS_PORT: z.coerce.number().default(6379),
+  REDIS_PASSWORD: z.string(),
 
   // db
   DB_HOST: z.string().default("localhost"),
