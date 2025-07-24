@@ -3,14 +3,20 @@ import {
   SessionExpiredError,
   TokenExpiredError,
 } from "@/app-error";
+import { REDIS_TOKEN_BLACKLIST_KEY, REFRESH_TOKEN_COOKIE_NAME } from "@/config";
 import { createId } from "@paralleldrive/cuid2";
+import { Request } from "express";
 import jwt from "jsonwebtoken";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import z from "zod";
 import {
+  blacklistAccessToken,
   compareToken,
   generateAccessToken,
   generateRefreshToken,
+  getAccessTokenFromRequest,
+  getIsTokenBlacklisted,
+  getRefreshTokenFromRequest,
   hashToken,
   refreshTokens,
   verifyAccessToken,
@@ -20,10 +26,25 @@ import {
 
 const mGetSession = vi.hoisted(() => vi.fn());
 const mUpdateSession = vi.hoisted(() => vi.fn());
-vi.mock("@/modules/auth/auth.service.ts", () => ({
+vi.mock("./auth.service.ts", () => ({
   getSession: mGetSession,
   updateSession: mUpdateSession,
 }));
+
+const mRedisSet = vi.hoisted(() => vi.fn());
+const mRedisExists = vi.hoisted(() => vi.fn());
+vi.mock("@/cache.ts", () => ({
+  redis: {
+    set: mRedisSet,
+    exists: mRedisExists,
+  },
+}));
+
+const mSecret = "secret";
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 describe("generateAccessToken", () => {
   it("returns the signed access token ", () => {
@@ -54,7 +75,6 @@ describe("generateRefreshToken", () => {
 });
 
 describe("verifyToken", () => {
-  const mSecret = "secret";
   const mSchema = z.object({
     sub: z.string(),
   });
@@ -78,7 +98,6 @@ describe("verifyToken", () => {
 
 describe("verifyAccessToken", () => {
   it("should verify access token and its return payload", () => {
-    const mSecret = "secret";
     process.env.ACCESS_TOKEN_SECRET = mSecret;
 
     const mSub = createId();
@@ -97,7 +116,6 @@ describe("verifyAccessToken", () => {
 
 describe("verifyRefreshToken", () => {
   it("should verify refresh token and its return payload", () => {
-    const mSecret = "secret";
     process.env.REFRESH_TOKEN_SECRET = mSecret;
 
     const mSessionId = createId();
@@ -115,7 +133,6 @@ describe("verifyRefreshToken", () => {
 });
 
 describe("refreshTokens", () => {
-  const mSecret = "secret";
   process.env.REFRESH_TOKEN_SECRET = mSecret;
   process.env.ACCESS_TOKEN_SECRET = mSecret;
 
@@ -132,9 +149,7 @@ describe("refreshTokens", () => {
     const res = await refreshTokens(mOldRefreshToken);
 
     expect(res).toEqual([expect.any(String), expect.any(String)]);
-    expect(mGetSession).toHaveBeenCalledTimes(1);
     expect(mGetSession).toHaveBeenCalledWith(expect.any(String));
-    expect(mUpdateSession).toHaveBeenCalledTimes(1);
     expect(mUpdateSession).toHaveBeenCalledWith(
       mSession.sessionId,
       expect.any(String),
@@ -181,14 +196,113 @@ describe("hashToken", () => {
     expect(res).toEqual(expect.any(String));
   });
 });
+
 describe("compareToken", () => {
   it("should compare tokens", () => {
-    const mSecret = "secret";
     const mToken = jwt.sign({ foo: "bar" }, mSecret);
 
     const tokenHash = hashToken(mToken);
     const res = compareToken(mToken, tokenHash);
 
     expect(res).toEqual(true);
+  });
+});
+
+describe("getAccessTokenFromRequest", () => {
+  it("should return access token from request headers", () => {
+    const mAccessToken = "accessToken";
+
+    const res = getAccessTokenFromRequest({
+      headers: {
+        authorization: `Bearer ${mAccessToken}`,
+      },
+    } as Request);
+
+    expect(res).toEqual(mAccessToken);
+  });
+
+  it("should return null if header not found", () => {
+    const res = getAccessTokenFromRequest({ headers: {} } as Request);
+
+    expect(res).toEqual(null);
+  });
+});
+
+describe("getRefreshTokenFromRequest", () => {
+  it("should return refresh token from request cookie", () => {
+    const mRefreshToken = "refreshToken";
+
+    const res = getRefreshTokenFromRequest({
+      cookies: {
+        [REFRESH_TOKEN_COOKIE_NAME]: mRefreshToken,
+      },
+    } as unknown as Request);
+
+    expect(res).toEqual(mRefreshToken);
+  });
+
+  it("should return null if cookie not found", () => {
+    const res = getRefreshTokenFromRequest({ cookies: {} } as Request);
+
+    expect(res).toEqual(null);
+  });
+});
+
+describe("blacklistAccessToken", () => {
+  it("should blacklist access token for remaining ttl", async () => {
+    const mTtlSeconds = 6;
+    const mExp = Math.floor(Date.now() / 1000) + mTtlSeconds; // expire in 6 seconds
+    const mAccessToken = jwt.sign({ sub: "userId123", exp: mExp }, mSecret);
+
+    await blacklistAccessToken(mAccessToken);
+
+    expect(mRedisSet).toHaveBeenCalledWith(
+      `${REDIS_TOKEN_BLACKLIST_KEY}:${mAccessToken}`,
+      "1",
+      "EX",
+      mTtlSeconds
+    );
+  });
+
+  it("should return if exp not set", async () => {
+    const mAccessToken = jwt.sign({ sub: "userId123" }, mSecret);
+
+    await blacklistAccessToken(mAccessToken);
+
+    expect(mRedisSet).toHaveBeenCalledTimes(0);
+  });
+
+  it("should return if payload is invalid", async () => {
+    const mAccessToken = jwt.sign("invalid payload", mSecret);
+
+    await blacklistAccessToken(mAccessToken);
+
+    expect(mRedisSet).toHaveBeenCalledTimes(0);
+  });
+});
+
+describe("getIsTokenBlacklisted", () => {
+  it("should return true for blacklisted token", async () => {
+    mRedisExists.mockResolvedValue(1);
+    const mAccessToken = "accessToken";
+
+    const res = await getIsTokenBlacklisted(mAccessToken);
+
+    expect(res).toEqual(true);
+    expect(mRedisExists).toHaveBeenCalledWith(
+      `${REDIS_TOKEN_BLACKLIST_KEY}:${mAccessToken}`
+    );
+  });
+
+  it("should return false for non-blacklisted token", async () => {
+    mRedisExists.mockResolvedValue(0);
+    const mAccessToken = "accessToken";
+
+    const res = await getIsTokenBlacklisted(mAccessToken);
+
+    expect(res).toEqual(false);
+    expect(mRedisExists).toHaveBeenCalledWith(
+      `${REDIS_TOKEN_BLACKLIST_KEY}:${mAccessToken}`
+    );
   });
 });

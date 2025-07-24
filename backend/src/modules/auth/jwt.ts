@@ -5,6 +5,7 @@ import {
 } from "@/app-error";
 import { redis } from "@/cache";
 import {
+  REDIS_TOKEN_BLACKLIST_KEY,
   REFRESH_TOKEN_COOKIE_NAME,
   REFRESH_TOKEN_COOKIE_OPTIONS,
 } from "@/config";
@@ -127,5 +128,5 @@ export async function blacklistAccessToken(accessToken: string) {
 }
 
 export async function getIsTokenBlacklisted(token: string): Promise<boolean> {
-  return (await redis.exists(`blacklist:${token}`)) === 1;
+  return (await redis.exists(`${REDIS_TOKEN_BLACKLIST_KEY}:${token}`)) === 1;
 }

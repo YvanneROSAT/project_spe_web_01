@@ -5,6 +5,14 @@ export const BCRYPT_SALT_ROUNDS = 10;
 export const FAKE_PASSWORD_HASH =
   "$2b$10$CwTycUXWue0Thq9StjUM0uJ8eDl3pZAgUQmrc9hUlPZx4s8ZfrfG2";
 
+export const REDIS_TOKEN_BLACKLIST_KEY = "blacklist";
+
+export const REDIS_CONNECTION_CONFIG = {
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+  password: process.env.REDIS_PASSWORD,
+} as const;
+
 export const DB_CONNECTION_CONFIG = {
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
