@@ -1,5 +1,5 @@
 {
-  "$schema": "https://cdn.statically.io/gh/nguyenngoclongdev/cdn/main/schema/v10/terminal-keeper.json",
+  "$schema": "https://cdn.statically.io/gh/nguyenngoclongdev/cdn/main/schema/v11/terminal-keeper.json",
   "theme": "tribe",
   "active": "default",
   "activateOnStartup": true,
@@ -8,24 +8,25 @@
     "default": [
       [
         {
-          "name": "database",
-          "color": "terminal.ansiMagenta",
-          "icon": "database",
-          "autoExecuteCommands": true,
-          "joinOperator": ";",
-          "commands": [
-            "cd backend",
-            "pnpm db:start"
-          ]
-        },
-        {
           "name": "backend",
           "color": "terminal.ansiBlue",
           "icon": "server",
           "autoExecuteCommands": true,
-          "joinOperator": ";",
+          "joinOperator": "&&",
           "commands": [
             "cd backend",
+            "pnpm db:start -- --wait",
+            "pnpm dev"
+          ]
+        },
+        {
+          "name": "frontend",
+          "color": "terminal.ansiGreen",
+          "icon": "device-desktop",
+          "autoExecuteCommands": true,
+          "joinOperator": "&&",
+          "commands": [
+            "cd frontend",
             "pnpm dev"
           ]
         }

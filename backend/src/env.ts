@@ -1,28 +1,32 @@
 import dotenv from "dotenv";
-import path from "path";
 dotenv.config({
-  path:
-    process.env.NODE_ENV === "test"
-      ? path.join(__dirname, "../.env.test")
-      : undefined,
+  quiet: true,
 });
 
 import { z } from "zod";
 
 const envSchema = z.object({
+  // general
   NODE_ENV: z.enum(["dev", "production", "test"]).default("production"),
-  LOG_LEVEL: z.enum(["debug", "info"]).default("info"),
-  JWT_SECRET: z.string(),
-  PORT: z.string().transform((v) => parseInt(v)),
+  LOG_LEVEL: z.enum(["debug", "info", "error"]).default("info"),
+  PORT: z.coerce.number().default(3000),
+  FRONTEND_URL: z.url(),
+
+  // auth
+  ACCESS_TOKEN_SECRET: z.string(),
+  REFRESH_TOKEN_SECRET: z.string(),
+
+  // redis
+  REDIS_HOST: z.string().default("localhost"),
+  REDIS_PORT: z.coerce.number().default(6379),
+  REDIS_PASSWORD: z.string(),
+
+  // db
   DB_HOST: z.string().default("localhost"),
-  DB_PORT: z
-    .string()
-    .transform((v) => parseInt(v))
-    .default(3306),
+  DB_PORT: z.coerce.number().default(3306),
   DB_USER: z.string().default("root"),
   DB_PASSWORD: z.string(),
   DB_NAME: z.string().default("project_spe_web"),
-  FRONTEND_URL: z.url(),
 });
 
 envSchema.parse(process.env);

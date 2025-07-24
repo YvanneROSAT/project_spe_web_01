@@ -1,21 +1,40 @@
+import { removeUndefinedFromObject } from "@/helpers";
+import { requireAuth } from "@/middlewares/requireAuth";
 import { validateRequest } from "@/middlewares/validateRequest";
 import { cspForPublicStats } from "@/middlewares/csp";
 import { Router } from "express";
 import z from "zod";
 import { getProductById, getProducts, getPublicStats } from "./products.service";
+import { ProductNotFoundError } from "./products.errors";
+import {
+  singleProductParamsSchema,
+  updateProductSchema,
+} from "./products.schemas";
+import {
+  deleteProduct,
+  getProductById,
+  getProducts,
+  PRODUCTS_PER_PAGE,
+  updateProduct,
+} from "./products.service";
 
 export default Router()
   .get(
-    "/all",
+    "/search",
     validateRequest({
       query: z.object({
+        query: z.string(),
         page: z.coerce.number(),
       }),
     }),
     async function (req, res) {
-      const products = await getProducts(req.query.page);
+      const { query, page } = req.query;
 
-      res.json({ count: products.length, products }).send();
+      const products = await getProducts(query, page);
+
+      res
+        .json({ pageNumber: page, pageSize: PRODUCTS_PER_PAGE, products })
+        .send();
     }
   )
   
@@ -36,12 +55,13 @@ export default Router()
   .get(
     "/:productId",
     validateRequest({
-      params: z.object({
-        productId: z.cuid2(),
-      }),
+      params: singleProductParamsSchema,
     }),
     async function (req, res) {
       const product = await getProductById(req.params.productId);
+      if (!product) {
+        throw new ProductNotFoundError();
+      }
 
       res.json({ product });
     }
@@ -49,18 +69,38 @@ export default Router()
   .patch(
     "/:productId",
     validateRequest({
-      params: z.object({
-        productId: z.cuid2(),
-      }),
-      body: z.object({
-        label: z.string().optional(),
-        description: z.string().optional(),
-        price: z.string().optional(),
-        categoryId: z.string().optional(),
-      }),
+      params: singleProductParamsSchema,
+      body: updateProductSchema,
     }),
+    requireAuth, // todo: determine who can update products
     async function (req, res) {
       const result = await {};
       res.json({ message: "Modification à implémenter" });
+      const { productId } = req.params;
+      const fieldsToUpdate = removeUndefinedFromObject(req.body);
+
+      const success = await updateProduct(productId, fieldsToUpdate);
+      if (!success) {
+        throw new ProductNotFoundError();
+      }
+
+      res.send();
+    }
+  )
+  .delete(
+    "/:productId",
+    validateRequest({
+      params: singleProductParamsSchema,
+    }),
+    requireAuth, // todo: determine who can delete products
+    async function (req, res) {
+      const { productId } = req.params;
+
+      const success = await deleteProduct(productId);
+      if (!success) {
+        throw new ProductNotFoundError();
+      }
+
+      res.send();
     }
   );

@@ -4,12 +4,13 @@ import logger from "@/logger";
 import errorHandler from "@/middlewares/errorHandler";
 import { generateCSPNonce, cspMiddleware } from "@/middlewares/csp";
 import authRouter from "@/modules/auth/auth.router";
-import { AuthPayload } from "@/modules/auth/schemas";
 import productsRouter from "@/modules/products/products.router";
 import adminRouter from "@/modules/admin/admin.router";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
+import helmet from "helmet";
+import { authenticate } from "./middlewares/authenticate";
 
 const app = express();
 
@@ -29,6 +30,8 @@ app
   .use(cookieParser())
   .use(generateCSPNonce)
   
+  .use(authenticate)
+  .use("/auth", authRouter)
   .use("/products", productsRouter)
   
   .use(cors(corsOptions))
@@ -49,7 +52,9 @@ app.listen(process.env.PORT, () => {
 declare global {
   namespace Express {
     export interface Request {
-      user: AuthPayload;
+      user: {
+        userId: string;
+      };
     }
   }
 }

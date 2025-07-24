@@ -1,11 +1,17 @@
-export const PORT = process.env.PORT;
+import { CookieOptions } from "express";
 
-export const CSRF_TOKEN_KEY = "csrf_token";
 export const JWT_TOKEN_KEY = "token";
-export const JWT_SECRET = process.env.JWT_SECRET;
 export const BCRYPT_SALT_ROUNDS = 10;
 export const FAKE_PASSWORD_HASH =
   "$2b$10$CwTycUXWue0Thq9StjUM0uJ8eDl3pZAgUQmrc9hUlPZx4s8ZfrfG2";
+
+export const REDIS_TOKEN_BLACKLIST_KEY = "blacklist";
+
+export const REDIS_CONNECTION_CONFIG = {
+  host: process.env.REDIS_HOST,
+  port: process.env.REDIS_PORT,
+  password: process.env.REDIS_PASSWORD,
+} as const;
 
 export const DB_CONNECTION_CONFIG = {
   host: process.env.DB_HOST,
@@ -14,3 +20,11 @@ export const DB_CONNECTION_CONFIG = {
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
 } as const;
+
+export const REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
+export const REFRESH_TOKEN_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: process.env.NODE_ENV !== "dev",
+  sameSite: "strict",
+  maxAge: 7 * 24 * 60 * 60 * 1000, // days
+} as const satisfies CookieOptions;
