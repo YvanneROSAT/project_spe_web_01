@@ -3,7 +3,7 @@ import { categoriesTable, productsTable } from "@/db/schema";
 import { eq, like, sql } from "drizzle-orm";
 import { UpdateProductInput } from "./products.schemas";
 
-const PRODUCTS_PER_PAGE = 20;
+export const PRODUCTS_PER_PAGE = 20;
 
 function formatProduct(
   p: typeof productsTable.$inferSelect,

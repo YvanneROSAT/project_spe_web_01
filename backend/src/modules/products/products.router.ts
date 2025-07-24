@@ -12,6 +12,7 @@ import {
   deleteProduct,
   getProductById,
   getProducts,
+  PRODUCTS_PER_PAGE,
   updateProduct,
 } from "./products.service";
 
@@ -29,7 +30,9 @@ export default Router()
 
       const products = await getProducts(query, page);
 
-      res.json({ count: products.length, products }).send();
+      res
+        .json({ pageNumber: page, pageSize: PRODUCTS_PER_PAGE, products })
+        .send();
     }
   )
   .get(
