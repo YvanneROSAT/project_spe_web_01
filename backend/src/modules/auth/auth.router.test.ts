@@ -1,3 +1,4 @@
+import { usersTable } from "@/db/schema";
 import express from "express";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -5,9 +6,11 @@ import authRouter from "./auth.router"; // adjust path
 
 const mGetUserByEmail = vi.hoisted(() => vi.fn());
 const mCreateUser = vi.hoisted(() => vi.fn());
+const mCreateSession = vi.hoisted(() => vi.fn());
 vi.mock("./auth.service", () => ({
   getUserByEmail: mGetUserByEmail,
   createUser: mCreateUser,
+  createSession: mCreateSession,
 }));
 
 const mGetIsPasswordSafe = vi.hoisted(() => vi.fn());
@@ -19,9 +22,23 @@ vi.mock("./password", () => ({
   hashPassword: mHashPassword,
 }));
 
+const mAccessToken = "mockedAccessToken";
+const mRefreshToken = "mockedRefreshToken";
 vi.mock("./jwt", () => ({
-  generateJWToken: () => "mockedJWT",
+  generateAccessToken: () => mAccessToken,
+  generateRefreshToken: () => mRefreshToken,
 }));
+
+const mUser: typeof usersTable.$inferSelect = {
+  userId: "123",
+  email: "john.smith@mail.com",
+  firstName: "John",
+  lastName: "Smith",
+  passwordHash: "validhash",
+  createdAt: new Date(),
+  isActive: true,
+  lastLogin: new Date("2025-04-03"),
+};
 
 const app = express();
 app.use(express.json());
@@ -32,7 +49,45 @@ beforeEach(() => {
 });
 
 describe("POST /login", () => {
-  it("returns 403 on wrong credentials", async () => {
+  it("should return token on successful login", async () => {
+    mGetUserByEmail.mockResolvedValue(mUser);
+    mComparePassword.mockResolvedValue(true);
+    mCreateSession.mockResolvedValue("sessionId");
+
+    const mData = {
+      email: "john.smith@mail.com",
+      password: "correct123",
+    };
+
+    const res = await request(app).post("/login").send(mData);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toEqual({
+      accessToken: mAccessToken,
+      user: {
+        id: mUser.userId,
+        email: mUser.email,
+        firstName: mUser.firstName,
+        lastName: mUser.lastName,
+      },
+    });
+    expect(mGetUserByEmail).toHaveResolvedTimes(1);
+    expect(mGetUserByEmail).toHaveBeenCalledWith(mUser.email);
+    expect(mComparePassword).toHaveResolvedTimes(1);
+    expect(mComparePassword).toHaveBeenCalledWith(
+      mData.password,
+      mUser.passwordHash
+    );
+    expect(mCreateSession).toHaveResolvedTimes(1);
+    expect(mCreateSession).toHaveBeenCalledWith(
+      mUser.userId,
+      mRefreshToken,
+      "",
+      "::ffff:127.0.0.1"
+    );
+  });
+
+  it("should return 403 on wrong credentials", async () => {
     mGetUserByEmail.mockResolvedValue(null);
     mComparePassword.mockResolvedValue(false);
     mGetIsPasswordSafe.mockReturnValue(false);
@@ -45,26 +100,7 @@ describe("POST /login", () => {
     expect(res.status).toBe(403);
   });
 
-  it("returns token upon successful login", async () => {
-    mGetUserByEmail.mockResolvedValue({
-      userId: "123",
-      email: "john.smith@mail.com",
-      passwordHash: "validhash",
-    });
-    mComparePassword.mockResolvedValue(true);
-
-    const res = await request(app).post("/login").send({
-      email: "john.smith@mail.com",
-      password: "correct123",
-    });
-
-    expect(res.status).toBe(200);
-    expect(res.body).toEqual({
-      token: "mockedJWT",
-    });
-  });
-
-  it("returns 429 after too many login attempts", async () => {
+  it("should return 429 after too many login attempts", async () => {
     mGetUserByEmail.mockResolvedValue(null);
     mComparePassword.mockResolvedValue(false);
 
@@ -83,20 +119,7 @@ describe("POST /login", () => {
 });
 
 describe("POST /register", () => {
-  it("returns 403 if user already exists", async () => {
-    mGetUserByEmail.mockResolvedValue({});
-
-    const res = await request(app).post("/register").send({
-      firstName: "John",
-      lastName: "Smith",
-      email: "john.smith@mail.com",
-      password: "password",
-    });
-
-    expect(res.status).toBe(403);
-  });
-
-  it("returns 200 on successful registration", async () => {
+  it("should return 200 on successful registration", async () => {
     mGetUserByEmail.mockResolvedValue(null);
     mHashPassword.mockResolvedValue("hashed");
     mCreateUser.mockResolvedValue(true);
@@ -112,7 +135,20 @@ describe("POST /register", () => {
     expect(res.status).toBe(200);
   });
 
-  it("returns 429 after too many register attempts", async () => {
+  it("should return 403 if user already exists", async () => {
+    mGetUserByEmail.mockResolvedValue({});
+
+    const res = await request(app).post("/register").send({
+      firstName: "John",
+      lastName: "Smith",
+      email: "john.smith@mail.com",
+      password: "password",
+    });
+
+    expect(res.status).toBe(403);
+  });
+
+  it("should return 429 after too many register attempts", async () => {
     mGetUserByEmail.mockResolvedValue(null);
     mGetIsPasswordSafe.mockResolvedValue(true);
     mHashPassword.mockResolvedValue("hashed");

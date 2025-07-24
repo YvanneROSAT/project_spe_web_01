@@ -43,7 +43,7 @@ export default Router()
       const accessToken = generateAccessToken(user.userId);
       const refreshToken = generateRefreshToken();
 
-      const session = await createSession(
+      await createSession(
         user.userId,
         refreshToken,
         req.headers["user-agent"] ?? "",
@@ -64,8 +64,7 @@ export default Router()
             firstName: user.firstName,
             lastName: user.lastName,
           },
-        })
-        .send();
+        });
     }
   )
   .post(
