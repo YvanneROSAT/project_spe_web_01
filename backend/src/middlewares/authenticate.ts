@@ -26,7 +26,6 @@ export async function authenticate(
       }
 
       const payload = verifyAccessToken(accessToken);
-      console.log(payload, accessToken);
       if (payload) {
         req.user = { userId: payload.sub };
         return next();
