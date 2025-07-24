@@ -3,6 +3,7 @@ import {
   SessionExpiredError,
   TokenExpiredError,
 } from "@/app-error";
+import { createId } from "@paralleldrive/cuid2";
 import jwt from "jsonwebtoken";
 import { describe, expect, it, vi } from "vitest";
 import z from "zod";
@@ -12,6 +13,8 @@ import {
   generateRefreshToken,
   hashToken,
   refreshTokens,
+  verifyAccessToken,
+  verifyRefreshToken,
   verifyToken,
 } from "./jwt";
 
@@ -70,6 +73,44 @@ describe("verifyToken", () => {
     const res = verifyToken("invalid token", mSchema, mSecret);
 
     expect(res).toEqual(null);
+  });
+});
+
+describe("verifyAccessToken", () => {
+  it("should verify access token and its return payload", () => {
+    const mSecret = "secret";
+    process.env.ACCESS_TOKEN_SECRET = mSecret;
+
+    const mSub = createId();
+    const mAccessToken = jwt.sign({ sub: mSub }, mSecret, {
+      expiresIn: "10s",
+    });
+
+    const payload = verifyAccessToken(mAccessToken);
+
+    expect(payload).toEqual({
+      exp: Math.floor(Date.now() / 1000) + 10, // in 10 seconds
+      sub: mSub,
+    });
+  });
+});
+
+describe("verifyRefreshToken", () => {
+  it("should verify refresh token and its return payload", () => {
+    const mSecret = "secret";
+    process.env.REFRESH_TOKEN_SECRET = mSecret;
+
+    const mSessionId = createId();
+    const mRefreshToken = jwt.sign({ sessionId: mSessionId }, mSecret, {
+      expiresIn: "10s",
+    });
+
+    const payload = verifyRefreshToken(mRefreshToken);
+
+    expect(payload).toEqual({
+      exp: Math.floor(Date.now() / 1000) + 10, // in 10 seconds
+      sessionId: mSessionId,
+    });
   });
 });
 
