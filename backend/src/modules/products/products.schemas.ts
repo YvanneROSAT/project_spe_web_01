@@ -1,5 +1,9 @@
 import z from "zod";
 
+export const singleProductParamsSchema = z.object({
+  productId: z.cuid2(),
+});
+
 export const updateProductSchema = z.object({
   label: z.string().optional(),
   description: z.string().optional(),

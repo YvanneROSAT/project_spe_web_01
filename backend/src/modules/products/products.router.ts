@@ -4,8 +4,16 @@ import { validateRequest } from "@/middlewares/validateRequest";
 import { Router } from "express";
 import z from "zod";
 import { ProductNotFoundError } from "./products.errors";
-import { updateProductSchema } from "./products.schemas";
-import { getProductById, getProducts, updateProduct } from "./products.service";
+import {
+  singleProductParamsSchema,
+  updateProductSchema,
+} from "./products.schemas";
+import {
+  deleteProduct,
+  getProductById,
+  getProducts,
+  updateProduct,
+} from "./products.service";
 
 export default Router()
   .get(
@@ -24,9 +32,7 @@ export default Router()
   .get(
     "/:productId",
     validateRequest({
-      params: z.object({
-        productId: z.cuid2(),
-      }),
+      params: singleProductParamsSchema,
     }),
     async function (req, res) {
       const product = await getProductById(req.params.productId);
@@ -40,17 +46,32 @@ export default Router()
   .patch(
     "/:productId",
     validateRequest({
-      params: z.object({
-        productId: z.cuid2(),
-      }),
+      params: singleProductParamsSchema,
       body: updateProductSchema,
     }),
-    requireAuth,
+    requireAuth, // todo: determine who can update products
     async function (req, res) {
       const productId = req.params.productId;
       const fieldsToUpdate = removeUndefinedFromObject(req.body);
 
       const success = await updateProduct(productId, fieldsToUpdate);
+      if (!success) {
+        throw new ProductNotFoundError();
+      }
+
+      res.send();
+    }
+  )
+  .delete(
+    "/:productId",
+    validateRequest({
+      params: singleProductParamsSchema,
+    }),
+    requireAuth, // todo: determine who can delete products
+    async function (req, res) {
+      const productId = req.params.productId;
+
+      const success = await deleteProduct(productId);
       if (!success) {
         throw new ProductNotFoundError();
       }

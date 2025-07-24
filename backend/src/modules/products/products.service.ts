@@ -65,3 +65,11 @@ export async function updateProduct(
 
   return res[0].affectedRows > 0;
 }
+
+export async function deleteProduct(productId: string): Promise<boolean> {
+  const res = await db
+    .delete(productsTable)
+    .where(eq(productsTable.productId, productId));
+
+  return res[0].affectedRows > 0;
+}
