@@ -16,10 +16,8 @@ export default {
       return;
     }
 
-    const url = new URL("http://dummy" + window.location.hash.slice(1));
-    const params = new URLSearchParams(url.toString());
+    const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
-    console.log(id, url, Object.entries(params));
     if (!id) {
       productContainer.innerHTML = `<p>Produit introuvable.</p>`;
       return;

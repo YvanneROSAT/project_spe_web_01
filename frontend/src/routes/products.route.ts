@@ -19,7 +19,7 @@ export default {
             .map(
               (product) => `
               <div class="col-md-4 mb-4">
-                <div class="card h-100" style="cursor: pointer;" onclick="window.location.hash = '#/product?id=${product.id}'">
+                <div class="card h-100" style="cursor: pointer;" onclick="window.location.href = '/product?id=${product.id}'">
                   <div class="card-body">
                     <h5 class="card-title">${product.name}</h5>
                     <p class="card-text">${product.description}</p>

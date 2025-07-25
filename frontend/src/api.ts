@@ -20,7 +20,7 @@ export async function getProducts(): Promise<Product[]> {
 
 export async function getProduct(id: string): Promise<Product | null> {
   try {
-    const res = await axios.get(BACKEND_URL + "/product/" + id);
+    const res = await axios.get(BACKEND_URL + "/products/" + id);
 
     return productResponseSchema.parse(res.data).product;
   } catch (err) {

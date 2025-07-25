@@ -19,7 +19,7 @@ export async function router() {
     throw new Error("Could not find #app div");
   }
 
-  const path = location.hash.slice(1).split("?")[0] || "/";
+  const path = location.pathname.split("?")[0] || "/";
 
   await currentRoute?.onDestroy?.();
 

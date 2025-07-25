@@ -44,34 +44,26 @@ export async function getProducts(
       },
     })
     .then((products) =>
-      products.map((product) => ({
-        id: product.productId,
-        name: product.name,
-        description: product.description,
-        price: product.price,
-        category: product.category && {
-          id: product.category.categoryId,
-          label: product.category.label,
-        },
-        pictures: product.pictures.map(
-          (p) => process.env.BACKEND_URL + "/" + p.path
-        ),
-      }))
+      products.map((product) =>
+        formatProduct(product, product.category, product.pictures)
+      )
     );
 }
 
-export async function getProductById(id: string): Promise<Product | null> {
-  return db
-    .select()
-    .from(productsTable)
-    .leftJoin(
-      categoriesTable,
-      eq(productsTable.categoryId, categoriesTable.categoryId)
-    )
-    .where(eq(productsTable.productId, id))
-    .then((rows) =>
-      rows.length === 1
-        ? formatProduct(rows[0].products, rows[1].categories, [])
+export async function getProductById(
+  productId: string
+): Promise<Product | null> {
+  return db.query.productsTable
+    .findFirst({
+      where: eq(productsTable.productId, productId),
+      with: {
+        category: true,
+        pictures: true,
+      },
+    })
+    .then((product) =>
+      product
+        ? formatProduct(product, product.category, product.pictures)
         : null
     );
 }
