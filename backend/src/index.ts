@@ -6,7 +6,6 @@ import { cspMiddleware, generateCSPNonce } from "@/middlewares/csp";
 import { errorHandler } from "@/middlewares/errorHandler";
 import adminRouter from "@/modules/admin/admin.router";
 import authRouter from "@/modules/auth/auth.router";
-import cartRouter from "@/modules/card/cart.router";
 import productsRouter from "@/modules/products/products.router";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -27,7 +26,6 @@ express()
 
   .use("/auth", authRouter)
   .use("/products", productsRouter)
-  .use("/cart", cartRouter)
   .use(adminRouter)
 
   .use(errorHandler)
