@@ -1,6 +1,6 @@
 import { db } from "@/db/connection";
 import { categoriesTable, productsTable } from "@/db/schema";
-import { eq, like, sql } from "drizzle-orm";
+import { eq, like, sql, count } from "drizzle-orm";
 import { UpdateProductInput } from "./products.schemas";
 
 export const PRODUCTS_PER_PAGE = 20;
@@ -71,4 +71,21 @@ export async function deleteProduct(productId: string): Promise<boolean> {
     .delete(productsTable)
     .where(eq(productsTable.productId, productId))
     .then(([resultSet]) => resultSet.affectedRows > 0);
+}
+
+export async function getPublicStats() {
+  try {
+    const statsData = await db
+      .select({
+        nom: categoriesTable.label,
+        compte: count(productsTable.productId)
+      })
+      .from(categoriesTable)
+      .leftJoin(productsTable, eq(categoriesTable.categoryId, productsTable.categoryId))
+      .groupBy(categoriesTable.categoryId, categoriesTable.label);
+
+    return statsData;
+  } catch (error) {
+    throw new Error(`Erreur lors de la récupération des statistiques: ${error}`);
+  }
 }

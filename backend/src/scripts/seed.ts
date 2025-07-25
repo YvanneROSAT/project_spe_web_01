@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import { createId } from "@paralleldrive/cuid2";
 import { db } from "../db/connection";
 import { categoriesTable, picturesTable, productsTable } from "../db/schema";
 import "../env";
@@ -7,7 +8,10 @@ const CATEGORIES = ["Alimentation", "Ameublement", "Sport"];
 
 async function seedCategories() {
   console.log("Seeding categories...");
-  const categoryData = CATEGORIES.map((label) => ({ label }));
+  const categoryData = CATEGORIES.map((label) => ({ 
+    categoryId: createId(),
+    label 
+  }));
   await db.insert(categoriesTable).values(categoryData);
   return await db.select().from(categoriesTable);
 }
@@ -21,10 +25,11 @@ async function seedProducts(numberOfProducts: number = 50) {
   for (let i = 0; i < numberOfProducts; i++) {
     const category = faker.helpers.arrayElement(categoryList);
     productsData.push({
+      productId: createId(),
       label: faker.commerce.productName(),
       description: faker.commerce.productDescription(),
       price: faker.commerce.price({ min: 5, max: 500, dec: 2 }),
-      categoryId: category.categoryId,
+      categoryId: category.categoryId!,
     });
   }
 
@@ -50,6 +55,7 @@ async function seedPictures() {
 
     for (let i = 1; i <= imageCount; i++) {
       picturesData.push({
+        pictureId: createId(),
         path: `./image/${categoryName}/${productName}/img${i}.png`,
         productId: product.productId!,
       });
