@@ -92,7 +92,8 @@ describe("verifyAccessToken", () => {
     process.env.ACCESS_TOKEN_SECRET = mSecret;
 
     const mSub = createId();
-    const mAccessToken = jwt.sign({ sub: mSub }, mSecret, {
+    const mJti = createId();
+    const mAccessToken = jwt.sign({ sub: mSub, jti: mJti }, mSecret, {
       expiresIn: "10s",
     });
 
@@ -101,6 +102,7 @@ describe("verifyAccessToken", () => {
     expect(payload).toEqual({
       exp: Math.floor(Date.now() / 1000) + 10, // in 10 seconds
       sub: mSub,
+      jti: mJti,
     });
   });
 });
@@ -109,8 +111,8 @@ describe("verifyRefreshToken", () => {
   it("should verify refresh token and its return payload", () => {
     process.env.REFRESH_TOKEN_SECRET = mSecret;
 
-    const mSessionId = createId();
-    const mRefreshToken = jwt.sign({ sessionId: mSessionId }, mSecret, {
+    const mUserId = createId();
+    const mRefreshToken = jwt.sign({ userId: mUserId }, mSecret, {
       expiresIn: "10s",
     });
 
@@ -118,7 +120,7 @@ describe("verifyRefreshToken", () => {
 
     expect(payload).toEqual({
       exp: Math.floor(Date.now() / 1000) + 10, // in 10 seconds
-      sessionId: mSessionId,
+      userId: mUserId,
     });
   });
 });
