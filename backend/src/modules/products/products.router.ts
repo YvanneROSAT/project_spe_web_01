@@ -20,17 +20,17 @@ import {
 
 export default Router()
   .get(
-    "/search",
+    "/",
     validateRequest({
       query: z.object({
-        query: z.string(),
+        search: z.string(),
         page: z.coerce.number(),
       }),
     }),
     async function (req, res) {
-      const { query, page } = req.query;
+      const { search, page } = req.query;
 
-      const products = await getProducts(query, page);
+      const products = await getProducts(search, page);
 
       res
         .json({ pageNumber: page, pageSize: PRODUCTS_PER_PAGE, products })
@@ -63,7 +63,7 @@ export default Router()
       res.json({ product });
     }
   )
-  .patch(
+  .put(
     "/:productId",
     validateRequest({
       params: singleProductParamsSchema,

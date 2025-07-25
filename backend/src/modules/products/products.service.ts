@@ -21,7 +21,7 @@ export function formatProduct(
   };
 }
 
-export async function getProducts(query: string, page: number = 0) {
+export async function getProducts(search: string, page: number = 0) {
   return await db
     .select()
     .from(productsTable)
@@ -29,7 +29,9 @@ export async function getProducts(query: string, page: number = 0) {
       categoriesTable,
       eq(productsTable.categoryId, categoriesTable.categoryId)
     )
-    .where(like(sql`lower(${productsTable.label})`, `%${query.toLowerCase()}%`))
+    .where(
+      like(sql`lower(${productsTable.label})`, `%${search.toLowerCase()}%`)
+    )
     .limit(PRODUCTS_PER_PAGE)
     .offset(page * PRODUCTS_PER_PAGE)
     .then((rows) =>
