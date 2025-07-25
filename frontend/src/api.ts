@@ -1,5 +1,10 @@
 import axios from "axios";
 import {
+  categoriesResponseSchema,
+  type Category,
+  type CreateProductInput,
+  type CreateProductResponse,
+  createProductResponseSchema,
   type LoginInput,
   type LoginResponse,
   loginResponseSchema,
@@ -31,6 +36,32 @@ export async function getProduct(id: string): Promise<Product | null> {
     console.error(err);
 
     return null;
+  }
+}
+
+export async function createProduct(
+  input: CreateProductInput
+): Promise<CreateProductResponse | null> {
+  try {
+    const res = await axios.post(BACKEND_URL + "/products/new", input);
+
+    return createProductResponseSchema.parse(res.data);
+  } catch (err) {
+    console.error(err);
+
+    return null;
+  }
+}
+
+export async function getCategories(): Promise<Category[]> {
+  try {
+    const res = await axios.get(BACKEND_URL + "/categories");
+
+    return categoriesResponseSchema.parse(res.data).categories;
+  } catch (err) {
+    console.error(err);
+
+    return [];
   }
 }
 

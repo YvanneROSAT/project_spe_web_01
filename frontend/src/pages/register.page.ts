@@ -3,7 +3,7 @@ import { login, register } from "../api";
 import { extractFormData } from "../helpers";
 import type { Page } from "../types";
 
-function validateFormData(formData: Record<string, FormDataEntryValue>) {
+function validateRegisterData(formData: Record<string, FormDataEntryValue>) {
   const result = registerSchema.safeParse(formData);
   if (!result.success) {
     const msg = result.error.issues.map((i) => i.message).join(", ");
@@ -49,12 +49,10 @@ export default {
 		<button type="button" class="btn btn-secondary mt-3" onclick="history.back()">Retour</button>
 	`,
   onLoad: function () {
-    const form = document.querySelector<HTMLFormElement>("#registerForm");
+    const form = document.querySelector<HTMLFormElement>("form#registerForm");
     if (!form) {
       return;
     }
-
-    form.addEventListener("submit", handleSubmit);
 
     async function handleSubmit(e: SubmitEvent) {
       e.preventDefault();
@@ -63,7 +61,7 @@ export default {
       }
 
       const rawData = extractFormData(form);
-      const result = validateFormData(rawData);
+      const result = validateRegisterData(rawData);
 
       if (!result.success || !result.data) {
         alert(result.message);
@@ -75,5 +73,7 @@ export default {
         await login(result.data);
       }
     }
+
+    form.addEventListener("submit", handleSubmit);
   },
 } satisfies Page;

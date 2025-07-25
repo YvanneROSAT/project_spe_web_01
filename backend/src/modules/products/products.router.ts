@@ -2,15 +2,21 @@ import { removeUndefinedFromObject } from "@/helpers";
 import { cspForPublicStats } from "@/middlewares/csp";
 import { requireAuth } from "@/middlewares/requireAuth";
 import { validateRequest } from "@/middlewares/validateRequest";
-import { ProductResponse, ProductsResponse } from "common";
+import {
+  createProductSchema,
+  CreateProductResponse,
+  ProductResponse,
+  ProductsResponse,
+} from "common";
 import { Router } from "express";
 import z from "zod";
 import { ProductNotFoundError } from "./products.errors";
 import {
+  setProductSchema,
   singleProductParamsSchema,
-  updateProductSchema,
 } from "./products.schemas";
 import {
+  createProduct,
   deleteProduct,
   getProductById,
   getProducts,
@@ -35,6 +41,18 @@ export default Router()
       res.json({ products } satisfies ProductsResponse);
     }
   )
+  .post(
+    "/new",
+    validateRequest({
+      body: createProductSchema,
+    }),
+    requireAuth,
+    async function (req, res) {
+      const productId = await createProduct(req.body);
+
+      res.json({ id: productId } satisfies CreateProductResponse);
+    }
+  )
 
   // URL de statistiques publiques (accessible à toutes les IP) - AVANT /:productId
   .get(
@@ -46,6 +64,7 @@ export default Router()
       res.json(stats);
     }
   )
+
 
   .get(
     "/:productId",
@@ -61,11 +80,12 @@ export default Router()
       res.json({ product } satisfies ProductResponse);
     }
   )
+ 
   .put(
     "/:productId",
     validateRequest({
       params: singleProductParamsSchema,
-      body: updateProductSchema,
+      body: setProductSchema,
     }),
     requireAuth, // todo: determine who can update products
     async function (req, res) {

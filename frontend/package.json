@@ -15,6 +15,7 @@
   "dependencies": {
     "axios": "^1.11.0",
     "common": "link:..\\common",
+    "jwt-decode": "^4.0.0",
     "zod": "^4.0.10"
   }
 }

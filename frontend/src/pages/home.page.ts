@@ -8,6 +8,7 @@ export default {
     <div class="text-center mt-4" id="linkContainer">
       <a href="/login" id="loginLink" class="btn btn-primary m-2">Se connecter</a>
       <a href="/register" id="registerLink" class="btn btn-secondary m-2">S'inscrire</a>
+      <a href="/add-product" id="addProductLink" class="btn btn-success  m-2">Ajouter un produit</a>
       <a href="/products" class="btn btn-info m-2">Voir les produits</a>
       <a href="/stats" class="btn btn-warning m-2">Statistiques</a>
     </div>
@@ -17,8 +18,15 @@ export default {
     const welcomeMessage = document.getElementById("welcomeMessage");
     const loginLink = document.getElementById("loginLink");
     const registerLink = document.getElementById("registerLink");
+    const addProductLink = document.getElementById("addProductLink");
 
-    if (!linkContainer || !welcomeMessage || !loginLink || !registerLink) {
+    if (
+      !linkContainer ||
+      !welcomeMessage ||
+      !loginLink ||
+      !registerLink ||
+      !addProductLink
+    ) {
       return;
     }
 
@@ -43,6 +51,8 @@ export default {
       logoutButton.addEventListener("click", handleLogout);
 
       linkContainer.appendChild(logoutButton);
+    } else {
+      addProductLink.remove();
     }
   },
 } satisfies Page;

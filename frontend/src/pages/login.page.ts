@@ -30,12 +30,10 @@ export default {
 		<button type="button" class="btn btn-secondary mt-3" onclick="history.back()">Retour</button>
 	`,
   onLoad: function () {
-    const form = document.querySelector<HTMLFormElement>("#loginForm");
+    const form = document.querySelector<HTMLFormElement>("form#loginForm");
     if (!form) {
       return;
     }
-
-    form.addEventListener("submit", handleSubmit);
 
     async function handleSubmit(event: SubmitEvent) {
       event.preventDefault();
@@ -63,5 +61,7 @@ export default {
         alert("Une erreur est survenue");
       }
     }
+
+    form.addEventListener("submit", handleSubmit);
   },
 } satisfies Page;

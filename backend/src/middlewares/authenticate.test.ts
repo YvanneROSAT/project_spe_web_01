@@ -78,5 +78,7 @@ describe("authenticate", () => {
     expect(mGetIsTokenBlacklisted).toHaveBeenCalledWith(mJti);
   });
 
-  it("should populate user if valid access token", () => {});
+  it("should populate user if valid access token", () => {
+    // todo
+  });
 });

@@ -1,8 +1,8 @@
 import { db } from "@/db/connection";
 import { categoriesTable, picturesTable, productsTable } from "@/db/schema";
-import { Product } from "common";
+import { formatCategory } from "@/modules/categories/categories.service";
+import { CreateProductInput, Product, SetProductInput } from "common";
 import { count, eq, like, sql } from "drizzle-orm";
-import { UpdateProductInput } from "./products.schemas";
 
 export const PRODUCTS_PER_PAGE = 20;
 
@@ -16,10 +16,7 @@ export function formatProduct(
     name: product.name,
     description: product.description,
     price: product.price,
-    category: category && {
-      id: category.categoryId,
-      label: category.label,
-    },
+    category: category && formatCategory(category),
     pictures: pictures.map((p) => process.env.BACKEND_URL + "/" + p.path),
   };
 }
@@ -68,9 +65,19 @@ export async function getProductById(
     );
 }
 
+export async function createProduct(
+  input: CreateProductInput
+): Promise<string> {
+  return db
+    .insert(productsTable)
+    .values(input)
+    .$returningId()
+    .then((res) => res[0].productId);
+}
+
 export async function updateProduct(
   productId: string,
-  input: UpdateProductInput
+  input: SetProductInput
 ): Promise<boolean> {
   return db
     .update(productsTable)

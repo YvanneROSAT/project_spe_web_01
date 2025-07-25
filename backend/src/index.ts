@@ -7,6 +7,7 @@ import { errorHandler } from "@/middlewares/errorHandler";
 import adminRouter from "@/modules/admin/admin.router";
 import authRouter from "@/modules/auth/auth.router";
 import productsRouter from "@/modules/products/products.router";
+import categoriesRouter from "@/modules/categories/categories.router"
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
@@ -26,6 +27,7 @@ express()
 
   .use("/auth", authRouter)
   .use("/products", productsRouter)
+  .use("/categories", categoriesRouter)
   .use(adminRouter)
 
   .use(errorHandler)

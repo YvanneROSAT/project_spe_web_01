@@ -1,5 +1,6 @@
 import axios from "axios";
 import { getAccessToken } from "./auth";
+import addProductPage from "./pages/add-product.page";
 import homeRoute from "./pages/home.page";
 import loginRoute from "./pages/login.page";
 import productRoute from "./pages/product.page";
@@ -25,6 +26,7 @@ const routes: Record<string, Page> = {
   "/register": registerRoute,
   "/product": productRoute,
   "/products": productsRoute,
+  "/add-product": addProductPage,
   404: { html: `<h1>404</h1><p>Page not found.</p>` },
 };
 let currentPage: Page | null = null;
