@@ -4,9 +4,9 @@ import type { Route } from "../types";
 export default {
   html: `
   <div id="productContainer">
-    <h2 id="productName">...</h2>
-    <p id="productDescription">...</p>
-    <p><strong>Prix : <span id="productPrice">...</span> €</strong></p>
+    <h2 id="productName">Chargement</h2>
+    <p id="productDescription">Chargement</p>
+    <p><strong>Prix : <span id="productPrice">Chargement</span> €</strong></p>
     <button type="button" class="btn btn-secondary mt-3" onclick="history.back()">Retour</button>
   </div>
 `,
