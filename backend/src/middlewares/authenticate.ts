@@ -46,7 +46,7 @@ export async function authenticate(
 
       const payload = verifyAccessToken(newAccessToken);
       if (!payload) {
-        throw new Error("Bad access token payload");
+        return next(new Error("Bad access token payload"));
       }
 
       req.user = { userId: payload.sub };

@@ -1,11 +1,11 @@
 import { db } from "@/db/connection";
 import { categoriesTable, productsTable } from "@/db/schema";
-import { eq, like, sql, count } from "drizzle-orm";
+import { count, eq, like, sql } from "drizzle-orm";
 import { UpdateProductInput } from "./products.schemas";
 
 export const PRODUCTS_PER_PAGE = 20;
 
-function formatProduct(
+export function formatProduct(
   p: typeof productsTable.$inferSelect,
   c: typeof categoriesTable.$inferSelect | null
 ) {
@@ -78,14 +78,19 @@ export async function getPublicStats() {
     const statsData = await db
       .select({
         nom: categoriesTable.label,
-        compte: count(productsTable.productId)
+        compte: count(productsTable.productId),
       })
       .from(categoriesTable)
-      .leftJoin(productsTable, eq(categoriesTable.categoryId, productsTable.categoryId))
+      .leftJoin(
+        productsTable,
+        eq(categoriesTable.categoryId, productsTable.categoryId)
+      )
       .groupBy(categoriesTable.categoryId, categoriesTable.label);
 
     return statsData;
   } catch (error) {
-    throw new Error(`Erreur lors de la récupération des statistiques: ${error}`);
+    throw new Error(
+      `Erreur lors de la récupération des statistiques: ${error}`
+    );
   }
 }

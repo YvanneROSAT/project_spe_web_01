@@ -21,9 +21,3 @@ export class InternalServerError extends AppError {
     super("internal-server-error", 500);
   }
 }
-
-export class UnauthorizedByCorsError extends AppError {
-  constructor() {
-    super("unauthorized-by-cors", 500);
-  }
-}

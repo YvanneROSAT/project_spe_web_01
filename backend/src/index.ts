@@ -1,15 +1,16 @@
 import "@/env";
 
 import logger from "@/logger";
+import { authenticate } from "@/middlewares/authenticate";
 import { cspMiddleware, generateCSPNonce } from "@/middlewares/csp";
-import errorHandler from "@/middlewares/errorHandler";
+import { errorHandler } from "@/middlewares/errorHandler";
 import adminRouter from "@/modules/admin/admin.router";
 import authRouter from "@/modules/auth/auth.router";
+import cartRouter from "@/modules/card/cart.router";
 import productsRouter from "@/modules/products/products.router";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
-import { authenticate } from "./middlewares/authenticate";
 
 express()
   .use(express.json())
@@ -26,6 +27,7 @@ express()
 
   .use("/auth", authRouter)
   .use("/products", productsRouter)
+  .use("/cart", cartRouter)
   .use(adminRouter)
 
   .use(errorHandler)
