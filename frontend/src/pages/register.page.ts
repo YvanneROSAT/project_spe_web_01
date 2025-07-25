@@ -1,5 +1,5 @@
 import { registerSchema } from "common";
-import { register } from "../api";
+import { login, register } from "../api";
 import type { Page } from "../types";
 
 export default {
@@ -46,7 +46,6 @@ export default {
       const { data, success, error } = registerSchema.safeParse(
         Object.fromEntries(formData.entries())
       );
-      console.log(data, Object.fromEntries(formData.entries()));
       if (!success) {
         alert(
           "Formulaire invalide: " + error.issues.map((i) => i.message).join(",")
@@ -61,7 +60,10 @@ export default {
         return;
       }
 
-      await register(data);
+      const registerSuccess = await register(data);
+      if (registerSuccess) {
+        await login(data);
+      }
     }
     form.addEventListener("submit", handleSubmit);
   },

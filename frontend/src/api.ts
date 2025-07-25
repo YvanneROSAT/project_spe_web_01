@@ -56,19 +56,20 @@ export async function login(input: LoginInput): Promise<LoginResponse | null> {
   return null;
 }
 
-export async function register(input: RegisterInput): Promise<void> {
+export async function register(input: RegisterInput): Promise<boolean> {
   const res = await axios.post(BACKEND_URL + "/auth/register", input);
 
   switch (res.status) {
     case 200:
-      await login(input);
-      break;
+      return true;
     case 403:
       alert("Identifiants deja utilises");
       break;
     default:
       alert("Une erreur est survenue");
   }
+
+  return false;
 }
 
 export async function logout(): Promise<boolean> {
