@@ -1,23 +1,25 @@
 import { db } from "@/db/connection";
-import { categoriesTable, productsTable } from "@/db/schema";
+import { categoriesTable, picturesTable, productsTable } from "@/db/schema";
 import { count, eq, like, sql } from "drizzle-orm";
 import { UpdateProductInput } from "./products.schemas";
 
 export const PRODUCTS_PER_PAGE = 20;
 
 export function formatProduct(
-  p: typeof productsTable.$inferSelect,
-  c: typeof categoriesTable.$inferSelect | null
+  product: typeof productsTable.$inferSelect,
+  category: typeof categoriesTable.$inferSelect | null,
+  pictures: (typeof picturesTable.$inferSelect)[]
 ) {
   return {
-    id: p.productId,
-    label: p.label,
-    description: p.description,
-    price: p.price,
-    category: c && {
-      id: c.categoryId,
-      label: c.label,
+    id: product.productId,
+    label: product.label,
+    description: product.description,
+    price: product.price,
+    category: category && {
+      id: category.categoryId,
+      label: category.label,
     },
+    pictures: [pictures.map((p) => process.env.BACKEND_URL + "/" + p.path)],
   };
 }
 
@@ -29,6 +31,7 @@ export async function getProducts(search: string, page: number = 0) {
       categoriesTable,
       eq(productsTable.categoryId, categoriesTable.categoryId)
     )
+
     .where(
       like(sql`lower(${productsTable.label})`, `%${search.toLowerCase()}%`)
     )
@@ -36,7 +39,7 @@ export async function getProducts(search: string, page: number = 0) {
     .offset(page * PRODUCTS_PER_PAGE)
     .then((rows) =>
       rows.map(({ products, categories }) =>
-        formatProduct(products, categories)
+        formatProduct(products, categories, [])
       )
     );
 }
@@ -52,7 +55,7 @@ export async function getProductById(id: string) {
     .where(eq(productsTable.productId, id))
     .then((rows) =>
       rows.length === 1
-        ? formatProduct(rows[0].products, rows[1].categories)
+        ? formatProduct(rows[0].products, rows[1].categories, [])
         : null
     );
 }
