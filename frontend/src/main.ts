@@ -9,6 +9,7 @@ import registerRoute from "./pages/register.page";
 import "./style.css";
 import type { Page } from "./types";
 
+// todo: refresh access token on expired
 axios.interceptors.request.use(function (config) {
   const accessToken = getAccessToken();
   if (accessToken) {
