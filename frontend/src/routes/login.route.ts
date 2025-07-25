@@ -1,3 +1,4 @@
+import { loginSchema } from "common";
 import { login } from "../api";
 import type { Route } from "../types";
 
@@ -18,7 +19,7 @@ export default {
   <button type="button" class="btn btn-secondary mt-3" onclick="history.back()">Retour</button>
   `,
   onLoad: async function () {
-    const form = document.querySelector<HTMLFormElement>("#loginForm");
+    const form = document.querySelector<HTMLFormElement>("form#loginForm");
 
     async function handleSubmit(event: SubmitEvent) {
       event.preventDefault();
@@ -27,21 +28,18 @@ export default {
       }
 
       const formData = new FormData(form);
-      const email = formData.get("email")?.toString();
-      const password = formData.get("password")?.toString();
-
-      if (!email) {
-        alert("Email manquante");
-        return;
-      }
-
-      if (!password) {
-        alert("Mot de passe manquant");
+      const { data, success, error } = loginSchema.safeParse(
+        Object.fromEntries(formData.entries())
+      );
+      if (!success) {
+        alert(
+          "Formulaire invalide: " + error.issues.map((i) => i.message).join(",")
+        );
         return;
       }
 
       try {
-        const result = await login(email, password);
+        const result = await login(data);
         if (result) {
           localStorage.setItem("accessToken", result.accessToken);
           localStorage.setItem("user", JSON.stringify(result.user));

@@ -1,10 +1,12 @@
 import axios from "axios";
 import {
+  type LoginInput,
   type LoginResponse,
   loginResponseSchema,
   type Product,
   productResponseSchema,
   productsResponseSchema,
+  type RegisterInput,
 } from "common";
 import { BACKEND_URL } from "./config";
 
@@ -32,14 +34,8 @@ export async function getProduct(id: string): Promise<Product | null> {
   }
 }
 
-export async function login(email: string, password: string): Promise<LoginResponse | null> {
-  const res = await axios.post(BACKEND_URL + "/auth/login", {
-    headers: { "Content-Type": "application/json" },
-    body: {
-      email,
-      password,
-    },
-  });
+export async function login(input: LoginInput): Promise<LoginResponse | null> {
+  const res = await axios.post(BACKEND_URL + "/auth/login", input);
 
   switch (res.status) {
     case 200: {
@@ -48,8 +44,7 @@ export async function login(email: string, password: string): Promise<LoginRespo
         return null;
       }
 
-      return data
-
+      return data;
     }
     case 403:
       alert("Email ou mot de passe incorrect");
@@ -59,4 +54,19 @@ export async function login(email: string, password: string): Promise<LoginRespo
   }
 
   return null;
+}
+
+export async function register(input: RegisterInput): Promise<void> {
+  const res = await axios.post(BACKEND_URL + "/auth/register", input);
+
+  switch (res.status) {
+    case 200:
+      window.location.href = "/login";
+      break;
+    case 403:
+      alert("Identifiants deja utilises");
+      break;
+    default:
+      alert("Une erreur est survenue");
+  }
 }

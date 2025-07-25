@@ -12,7 +12,7 @@ import {
   getIsPasswordSafe,
   hashPassword,
 } from "@/modules/auth/password";
-import { LoginResponse } from "common";
+import { LoginResponse, loginSchema, registerSchema } from "common";
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import {
@@ -20,7 +20,6 @@ import {
   InvalidCredentialsError,
   TokenExpiredError,
 } from "./auth.errors";
-import { loginSchema, registerSchema } from "./auth.schemas";
 import {
   blacklistAccessToken,
   generateAccessToken,
