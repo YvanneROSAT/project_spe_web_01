@@ -1,7 +1,10 @@
 export class AppError extends Error {
   prefix: string = "app-error";
 
-  constructor(code: string, public status: number) {
+  constructor(
+    code: string,
+    public status: number
+  ) {
     super(code);
     this.name = `AppError`;
 
@@ -16,5 +19,11 @@ export class AppError extends Error {
 export class InternalServerError extends AppError {
   constructor() {
     super("internal-server-error", 500);
+  }
+}
+
+export class UnauthorizedByCorsError extends AppError {
+  constructor() {
+    super("unauthorized-by-cors", 500);
   }
 }

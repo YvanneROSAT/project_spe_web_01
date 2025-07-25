@@ -1,13 +1,8 @@
 import { AppError } from "@/app-error";
 import logger from "@/logger";
-import { NextFunction, Request, Response } from "express";
+import { Request, Response } from "express";
 
-export function errorHandler(
-  err: Error,
-  _req: Request,
-  res: Response,
-  _next: NextFunction
-) {
+export function errorHandler(err: Error, _req: Request, res: Response) {
   if (err instanceof AppError) {
     return res.status(err.status).send(err.code);
   }

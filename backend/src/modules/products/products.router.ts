@@ -1,10 +1,9 @@
 import { removeUndefinedFromObject } from "@/helpers";
+import { cspForPublicStats } from "@/middlewares/csp";
 import { requireAuth } from "@/middlewares/requireAuth";
 import { validateRequest } from "@/middlewares/validateRequest";
-import { cspForPublicStats } from "@/middlewares/csp";
 import { Router } from "express";
 import z from "zod";
-import { getProductById, getProducts, getPublicStats } from "./products.service";
 import { ProductNotFoundError } from "./products.errors";
 import {
   singleProductParamsSchema,
@@ -14,6 +13,7 @@ import {
   deleteProduct,
   getProductById,
   getProducts,
+  getPublicStats,
   PRODUCTS_PER_PAGE,
   updateProduct,
 } from "./products.service";
@@ -37,21 +37,18 @@ export default Router()
         .send();
     }
   )
-  
+
   // URL de statistiques publiques (accessible à toutes les IP) - AVANT /:productId
   .get(
     "/stats",
     cspForPublicStats(), // CSP désactivé pour cette route
     async function (req, res) {
-      try {
-        const stats = await getPublicStats();
-        res.json(stats);
-      } catch (error) {
-        res.status(500).json({ error: 'Erreur interne du serveur' });
-      }
+      const stats = await getPublicStats();
+
+      res.json(stats);
     }
   )
-  
+
   .get(
     "/:productId",
     validateRequest({
@@ -74,8 +71,6 @@ export default Router()
     }),
     requireAuth, // todo: determine who can update products
     async function (req, res) {
-      const result = await {};
-      res.json({ message: "Modification à implémenter" });
       const { productId } = req.params;
       const fieldsToUpdate = removeUndefinedFromObject(req.body);
 

@@ -51,7 +51,7 @@ export function verifyToken<T extends z.ZodObject>(
     const payload = jwt.verify(token, secret);
 
     return schema.parse(payload);
-  } catch (error) {
+  } catch {
     return null;
   }
 }

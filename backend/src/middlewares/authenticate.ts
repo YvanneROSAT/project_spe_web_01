@@ -33,9 +33,8 @@ export async function authenticate(
     }
 
     if (refreshToken) {
-      const [newAccessToken, newRefreshToken] = await refreshTokens(
-        refreshToken
-      );
+      const [newAccessToken, newRefreshToken] =
+        await refreshTokens(refreshToken);
 
       res
         .cookie(
@@ -54,7 +53,7 @@ export async function authenticate(
     }
 
     next();
-  } catch (error) {
+  } catch {
     next();
   }
 }

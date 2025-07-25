@@ -13,23 +13,17 @@ import { authenticate } from "./middlewares/authenticate";
 
 const app = express();
 
-const corsOptions = {
-  origin: function (origin: string | undefined, callback: Function) {
-    if (!origin || origin === process.env.FRONTEND_URL) {
-      callback(null, true);
-    } else {
-      callback(new Error("Non autorisé par CORS"));
-    }
-  },
-  credentials: true,
-};
-
 app
   .use(express.json())
   .use(cookieParser())
   .use(generateCSPNonce)
+  .use(
+    cors({
+      origin: [process.env.FRONTEND_URL],
+      credentials: true,
+    })
+  )
   .use(authenticate)
-  .use(cors(corsOptions))
   .use(cspMiddleware())
 
   .use("/auth", authRouter)
@@ -50,8 +44,9 @@ app.listen(process.env.PORT, () => {
 });
 
 declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
-    export interface Request {
+    interface Request {
       user: {
         userId: string;
       };

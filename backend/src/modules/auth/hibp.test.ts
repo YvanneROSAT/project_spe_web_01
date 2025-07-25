@@ -12,7 +12,9 @@ describe("getHIBPMatches", () => {
       text: vi.fn().mockResolvedValue("ABCDEF1234567890:2\nFAFAFA1111111111:5"),
     };
 
-    globalThis.fetch = vi.fn().mockResolvedValue(mockResponse as any);
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValue(mockResponse as unknown as Response);
 
     const prefix = "5BAA6";
     const result = await getHIBPMatches(prefix);
@@ -29,7 +31,9 @@ describe("getHIBPMatches", () => {
       text: vi.fn().mockResolvedValue("Some error text"),
     };
 
-    globalThis.fetch = vi.fn().mockResolvedValue(mockResponse as any);
+    globalThis.fetch = vi
+      .fn()
+      .mockResolvedValue(mockResponse as unknown as Response);
 
     const result = await getHIBPMatches("ABCDE");
 
