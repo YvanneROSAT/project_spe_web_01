@@ -45,6 +45,7 @@ describe("generateAccessToken", () => {
 
     expect(jwt.decode(res)).toEqual({
       sub: "userId",
+      jti: expect.any(String),
       exp: expect.any(Number),
       iat: expect.any(Number),
     });
@@ -59,6 +60,7 @@ describe("generateRefreshToken", () => {
 
     expect(jwt.decode(res)).toEqual({
       sub: "userId",
+      jti: expect.any(String),
       exp: expect.any(Number),
       iat: expect.any(Number),
     });
@@ -91,9 +93,9 @@ describe("verifyAccessToken", () => {
   it("should verify access token and its return payload", () => {
     process.env.ACCESS_TOKEN_SECRET = mSecret;
 
-    const mSub = createId();
+    const mUserId = createId();
     const mJti = createId();
-    const mAccessToken = jwt.sign({ sub: mSub, jti: mJti }, mSecret, {
+    const mAccessToken = jwt.sign({ sub: mUserId, jti: mJti }, mSecret, {
       expiresIn: "10s",
     });
 
@@ -101,7 +103,7 @@ describe("verifyAccessToken", () => {
 
     expect(payload).toEqual({
       exp: Math.floor(Date.now() / 1000) + 10, // in 10 seconds
-      sub: mSub,
+      sub: mUserId,
       jti: mJti,
     });
   });
@@ -167,17 +169,21 @@ describe("getRefreshTokenFromRequest", () => {
 
 describe("blacklistAccessToken", () => {
   it("should blacklist access token for remaining ttl", async () => {
+    const mUserId = createId();
+    const mJti = createId();
     const mTtlSeconds = 6;
     const mExp = Math.floor(Date.now() / 1000) + mTtlSeconds; // expire in 6 seconds
-    const mAccessToken = jwt.sign({ sub: "userId123", exp: mExp }, mSecret);
+    const mAccessToken = jwt.sign(
+      { sub: mUserId, jti: mJti, exp: mExp },
+      mSecret
+    );
 
     await blacklistAccessToken(mAccessToken);
 
     expect(mRedisSetEx).toHaveBeenCalledWith(
-      `blacklist:${mAccessToken}`,
-      "1",
-      "EX",
-      mTtlSeconds
+      `blacklist:${mJti}`,
+      mTtlSeconds,
+      "1"
     );
   });
 
