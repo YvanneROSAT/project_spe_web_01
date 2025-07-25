@@ -16,10 +16,13 @@ import {
 } from "common";
 import { BACKEND_URL } from "./config";
 
-export async function getProducts(page: number): Promise<ProductsResponse> {
+export async function getProducts(
+  search: string | null,
+  page: number = 0
+): Promise<ProductsResponse> {
   try {
     const res = await axios.get(BACKEND_URL + "/products", {
-      params: { page },
+      params: { search, page },
     });
 
     return productsResponseSchema.parse(res.data);
