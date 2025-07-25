@@ -4,15 +4,9 @@ import {
   REFRESH_TOKEN_COOKIE_NAME,
   REFRESH_TOKEN_COOKIE_OPTIONS,
 } from "@/config";
-import { db } from "@/db/connection";
 import { requireAuth } from "@/middlewares/requireAuth";
 import { validateRequest } from "@/middlewares/validateRequest";
-import {
-  createSession,
-  createUser,
-  getUserByEmail,
-  invalidateSession,
-} from "@/modules/auth/auth.service";
+import { createUser, getUserByEmail } from "@/modules/auth/auth.service";
 import {
   comparePassword,
   getIsPasswordSafe,
@@ -20,7 +14,11 @@ import {
 } from "@/modules/auth/password";
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
-import { InvalidCredentialsError } from "./auth.errors";
+import {
+  ForbiddenError,
+  InvalidCredentialsError,
+  TokenExpiredError,
+} from "./auth.errors";
 import { loginSchema, registerSchema } from "./auth.schemas";
 import {
   blacklistAccessToken,
@@ -50,14 +48,7 @@ export default Router()
       }
 
       const accessToken = generateAccessToken(user.userId);
-      const refreshToken = generateRefreshToken();
-
-      await createSession(
-        user.userId,
-        refreshToken,
-        req.headers["user-agent"] ?? "",
-        req.ip ?? ""
-      );
+      const refreshToken = generateRefreshToken(user.userId);
 
       res
         .cookie(
@@ -102,29 +93,28 @@ export default Router()
   )
   .delete("/logout", requireAuth, async function (req, res) {
     const accessToken = getAccessTokenFromRequest(req);
-    const refreshToken = getRefreshTokenFromRequest(req);
-
     if (accessToken) {
       await blacklistAccessToken(accessToken);
     }
 
-    if (refreshToken) {
-      const payload = verifyRefreshToken(refreshToken);
-
-      if (payload) {
-        await invalidateSession(payload.sessionId);
-      }
-    }
-
     res.clearCookie(REFRESH_TOKEN_COOKIE_NAME).send();
   })
-  // todo: for testing purposes, remove in prod
-  .get("/dev", requireAuth, async function (req, res) {
-    if (process.env.NODE_ENV !== "dev") {
-      return res.sendStatus(404);
+  .post("/refresh", async function (req, res) {
+    const accessToken = getAccessTokenFromRequest(req);
+    if (accessToken) {
+      await blacklistAccessToken(accessToken);
     }
 
-    const users = await db.query.usersTable.findMany();
+    const refreshToken = getRefreshTokenFromRequest(req);
+    if (!refreshToken) {
+      throw new ForbiddenError();
+    }
 
-    return res.json(users).send();
+    const payload = verifyRefreshToken(refreshToken);
+    if (!payload) {
+      throw new TokenExpiredError();
+    }
+
+    const newAccessToken = generateAccessToken(payload.userId);
+    res.json({ newAccessToken });
   });

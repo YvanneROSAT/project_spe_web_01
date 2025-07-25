@@ -37,23 +37,23 @@ export async function getSession(sessionId: string) {
 }
 
 export async function createSession(
+  sessionId: string,
   userId: string,
   refreshToken: string,
   userAgent: string,
   ipAddress: string
-): Promise<string> {
-  const res = await db
+): Promise<boolean> {
+  return db
     .insert(sessionsTable)
     .values({
+      sessionId,
       userId,
       userAgent,
       ipAddress,
       tokenHash: hashToken(refreshToken),
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
     })
-    .$returningId();
-
-  return res[0].sessionId;
+    .then((res) => res[0].affectedRows > 0);
 }
 
 export async function updateSession(
