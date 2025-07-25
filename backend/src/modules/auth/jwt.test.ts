@@ -1,9 +1,4 @@
-import { REDIS_TOKEN_BLACKLIST_KEY, REFRESH_TOKEN_COOKIE_NAME } from "@/config";
-import {
-  ForbiddenError,
-  SessionExpiredError,
-  TokenExpiredError,
-} from "@/modules/auth/auth.errors";
+import { REFRESH_TOKEN_COOKIE_NAME } from "@/config";
 import { createId } from "@paralleldrive/cuid2";
 import { Request } from "express";
 import jwt from "jsonwebtoken";
@@ -11,14 +6,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import z from "zod";
 import {
   blacklistAccessToken,
-  compareToken,
   generateAccessToken,
-  generateRefreshToken,
   getAccessTokenFromRequest,
   getIsTokenBlacklisted,
   getRefreshTokenFromRequest,
-  hashToken,
-  refreshTokens,
   verifyAccessToken,
   verifyRefreshToken,
   verifyToken,
@@ -31,11 +22,11 @@ vi.mock("./auth.service.ts", () => ({
   updateSession: mUpdateSession,
 }));
 
-const mRedisSet = vi.hoisted(() => vi.fn());
+const mRedisSetEx = vi.hoisted(() => vi.fn());
 const mRedisExists = vi.hoisted(() => vi.fn());
 vi.mock("@/cache.ts", () => ({
   redis: {
-    set: mRedisSet,
+    setex: mRedisSetEx,
     exists: mRedisExists,
   },
 }));
@@ -62,12 +53,12 @@ describe("generateAccessToken", () => {
 
 describe("generateRefreshToken", () => {
   it("returns the signed refresh token ", () => {
-    process.env.REFRESH_TOKEN_SECRET = "jwt-refresh-secret";
+    process.env.ACCESS_TOKEN_SECRET = "jwt-access-secret";
 
-    const res = generateRefreshToken();
+    const res = generateAccessToken("userId");
 
     expect(jwt.decode(res)).toEqual({
-      sessionId: expect.any(String),
+      sub: "userId",
       exp: expect.any(Number),
       iat: expect.any(Number),
     });
@@ -132,82 +123,6 @@ describe("verifyRefreshToken", () => {
   });
 });
 
-describe("refreshTokens", () => {
-  process.env.REFRESH_TOKEN_SECRET = mSecret;
-  process.env.ACCESS_TOKEN_SECRET = mSecret;
-
-  it("should return a pair of accessToken and refreshToken", async () => {
-    const mOldRefreshToken = generateRefreshToken();
-    const mSession = {
-      sessionId: "sessionId123",
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-      tokenHash: hashToken(mOldRefreshToken),
-      userId: "userId123",
-    };
-    mGetSession.mockResolvedValue(mSession);
-
-    const res = await refreshTokens(mOldRefreshToken);
-
-    expect(res).toEqual([expect.any(String), expect.any(String)]);
-    expect(mGetSession).toHaveBeenCalledWith(expect.any(String));
-    expect(mUpdateSession).toHaveBeenCalledWith(
-      mSession.sessionId,
-      expect.any(String),
-      expect.any(Date)
-    );
-  });
-
-  it("should throw if refresh token expired", () => {
-    const mOldRefreshToken = jwt.sign({ exp: 0, sub: "userId123" }, mSecret);
-
-    expect(() => refreshTokens(mOldRefreshToken)).rejects.toThrow(
-      new TokenExpiredError()
-    );
-  });
-
-  it("should throw if session expired", () => {
-    const mOldRefreshToken = generateRefreshToken();
-    mGetSession.mockResolvedValueOnce({
-      expiresAt: 0,
-    });
-
-    expect(() => refreshTokens(mOldRefreshToken)).rejects.toThrow(
-      new SessionExpiredError()
-    );
-  });
-
-  it("should throw if refresh and session tokens don't match", () => {
-    const mOldRefreshToken = generateRefreshToken();
-    mGetSession.mockResolvedValueOnce({
-      tokenHash: hashToken("anything"),
-    });
-
-    expect(() => refreshTokens(mOldRefreshToken)).rejects.toThrow(
-      new ForbiddenError()
-    );
-  });
-});
-
-describe("hashToken", () => {
-  it("should return the token hash", () => {
-    const res = hashToken("anything");
-
-    expect(res).toBeDefined();
-    expect(res).toEqual(expect.any(String));
-  });
-});
-
-describe("compareToken", () => {
-  it("should compare tokens", () => {
-    const mToken = jwt.sign({ foo: "bar" }, mSecret);
-
-    const tokenHash = hashToken(mToken);
-    const res = compareToken(mToken, tokenHash);
-
-    expect(res).toEqual(true);
-  });
-});
-
 describe("getAccessTokenFromRequest", () => {
   it("should return access token from request headers", () => {
     const mAccessToken = "accessToken";
@@ -256,8 +171,8 @@ describe("blacklistAccessToken", () => {
 
     await blacklistAccessToken(mAccessToken);
 
-    expect(mRedisSet).toHaveBeenCalledWith(
-      `${REDIS_TOKEN_BLACKLIST_KEY}:${mAccessToken}`,
+    expect(mRedisSetEx).toHaveBeenCalledWith(
+      `blacklist:${mAccessToken}`,
       "1",
       "EX",
       mTtlSeconds
@@ -269,7 +184,7 @@ describe("blacklistAccessToken", () => {
 
     await blacklistAccessToken(mAccessToken);
 
-    expect(mRedisSet).toHaveBeenCalledTimes(0);
+    expect(mRedisSetEx).toHaveBeenCalledTimes(0);
   });
 
   it("should return if payload is invalid", async () => {
@@ -277,7 +192,7 @@ describe("blacklistAccessToken", () => {
 
     await blacklistAccessToken(mAccessToken);
 
-    expect(mRedisSet).toHaveBeenCalledTimes(0);
+    expect(mRedisSetEx).toHaveBeenCalledTimes(0);
   });
 });
 
@@ -289,9 +204,7 @@ describe("getIsTokenBlacklisted", () => {
     const res = await getIsTokenBlacklisted(mAccessToken);
 
     expect(res).toEqual(true);
-    expect(mRedisExists).toHaveBeenCalledWith(
-      `${REDIS_TOKEN_BLACKLIST_KEY}:${mAccessToken}`
-    );
+    expect(mRedisExists).toHaveBeenCalledWith(`blacklist:${mAccessToken}`);
   });
 
   it("should return false for non-blacklisted token", async () => {
@@ -301,8 +214,6 @@ describe("getIsTokenBlacklisted", () => {
     const res = await getIsTokenBlacklisted(mAccessToken);
 
     expect(res).toEqual(false);
-    expect(mRedisExists).toHaveBeenCalledWith(
-      `${REDIS_TOKEN_BLACKLIST_KEY}:${mAccessToken}`
-    );
+    expect(mRedisExists).toHaveBeenCalledWith(`blacklist:${mAccessToken}`);
   });
 });

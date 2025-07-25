@@ -1,8 +1,7 @@
 import { db } from "@/db/connection";
-import { sessionsTable, usersTable } from "@/db/schema";
+import { usersTable } from "@/db/schema";
 import { User } from "@/db/types";
 import { eq } from "drizzle-orm";
-import { hashToken } from "./jwt";
 
 export async function getUserByEmail(email: string): Promise<User | null> {
   const res = await db
@@ -25,51 +24,4 @@ export async function createUser(
   });
 
   return res[0].affectedRows > 0;
-}
-
-export async function getSession(sessionId: string) {
-  const res = await db
-    .select()
-    .from(sessionsTable)
-    .where(eq(sessionsTable.sessionId, sessionId));
-
-  return res.length === 1 ? res[0] : null;
-}
-
-export async function createSession(
-  sessionId: string,
-  userId: string,
-  refreshToken: string,
-  userAgent: string,
-  ipAddress: string
-): Promise<boolean> {
-  return db
-    .insert(sessionsTable)
-    .values({
-      sessionId,
-      userId,
-      userAgent,
-      ipAddress,
-      tokenHash: hashToken(refreshToken),
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
-    })
-    .then((res) => res[0].affectedRows > 0);
-}
-
-export async function updateSession(
-  sessionId: string,
-  tokenHash: string,
-  expiresAt: Date
-) {
-  await db
-    .update(sessionsTable)
-    .set({
-      tokenHash,
-      expiresAt,
-    })
-    .where(eq(sessionsTable.sessionId, sessionId));
-}
-
-export async function invalidateSession(sessionId: string) {
-  await db.delete(sessionsTable).where(eq(sessionsTable.sessionId, sessionId));
 }

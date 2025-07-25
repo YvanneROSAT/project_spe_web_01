@@ -1,7 +1,4 @@
-import {
-  SessionExpiredError,
-  TokenExpiredError,
-} from "@/modules/auth/auth.errors";
+import { TokenExpiredError } from "@/modules/auth/auth.errors";
 import {
   getAccessTokenFromRequest,
   getIsTokenBlacklisted,
@@ -14,6 +11,8 @@ export async function authenticate(
   res: Response,
   next: NextFunction
 ) {
+  req.user = null;
+
   const accessToken = getAccessTokenFromRequest(req);
   if (!accessToken) {
     return next();
@@ -21,16 +20,11 @@ export async function authenticate(
 
   try {
     const payload = verifyAccessToken(accessToken);
-    if (!payload) {
-      return next(new TokenExpiredError());
+    if (!payload || (await getIsTokenBlacklisted(payload.jti))) {
+      throw new TokenExpiredError();
     }
 
-    const isBlacklisted = await getIsTokenBlacklisted(payload.jti);
-    if (isBlacklisted) {
-      return next(new SessionExpiredError());
-    }
-
-    req.user = { userId: payload.sub };
+    req.user = Object.freeze({ userId: payload.sub });
     next();
   } catch (err) {
     next(err);

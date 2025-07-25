@@ -1,7 +1,6 @@
 import { redis } from "@/cache";
 import { REFRESH_TOKEN_COOKIE_NAME } from "@/config";
 import { createId } from "@paralleldrive/cuid2";
-import bcrypt from "bcrypt";
 import { Request } from "express";
 import jwt from "jsonwebtoken";
 import z from "zod";
@@ -40,7 +39,6 @@ export function verifyToken<T extends z.ZodObject>(
 ): z.infer<T> | null {
   try {
     const payload = jwt.verify(token, secret);
-
     return schema.parse(payload);
   } catch {
     return null;
@@ -63,14 +61,6 @@ export function verifyRefreshToken(refreshToken: string) {
   );
 }
 
-export function hashToken(token: string): string {
-  return bcrypt.hashSync(token, 10);
-}
-
-export function compareToken(token: string, tokenHash: string): boolean {
-  return bcrypt.compareSync(token, tokenHash);
-}
-
 export function getAccessTokenFromRequest(req: Request): string | null {
   return req.headers.authorization?.split(" ")[1] ?? null;
 }
@@ -89,6 +79,6 @@ export async function blacklistAccessToken(accessToken: string) {
   await redis.setex(`blacklist:${payload.jti}`, ttlSeconds, "1");
 }
 
-export async function getIsTokenBlacklisted(tokenId: string): Promise<boolean> {
-  return (await redis.exists(`blacklist:${tokenId}`)) === 1;
+export async function getIsTokenBlacklisted(jti: string): Promise<boolean> {
+  return (await redis.exists(`blacklist:${jti}`)) === 1;
 }

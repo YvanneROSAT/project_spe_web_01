@@ -2,7 +2,6 @@ import { createId } from "@paralleldrive/cuid2";
 import { relations } from "drizzle-orm";
 import {
   boolean,
-  datetime,
   decimal,
   int,
   json,
@@ -30,17 +29,6 @@ export const usersTable = mysqlTable("users", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   lastLogin: timestamp("last_login"),
   isActive: boolean("is_active").default(true).notNull(),
-});
-
-export const sessionsTable = mysqlTable("session", {
-  sessionId: varchar("Id_session", { length: 36 })
-    .primaryKey()
-    .$defaultFn(() => createId()),
-  userId: varchar("Id_users", { length: 36 }).notNull(),
-  tokenHash: varchar("token_hash", { length: 255 }).notNull(),
-  expiresAt: datetime("expires_at").notNull(),
-  userAgent: text("user_agent"),
-  ipAddress: varchar("ip_address", { length: 45 }),
 });
 
 export const productsTable = mysqlTable("products", {
@@ -85,12 +73,5 @@ export const picturesRelations = relations(picturesTable, ({ one }) => ({
   product: one(productsTable, {
     fields: [picturesTable.productId],
     references: [productsTable.productId],
-  }),
-}));
-
-export const sessionsRelations = relations(sessionsTable, ({ one }) => ({
-  user: one(usersTable, {
-    fields: [sessionsTable.userId],
-    references: [usersTable.userId],
   }),
 }));
