@@ -2,6 +2,7 @@ import { removeUndefinedFromObject } from "@/helpers";
 import { cspForPublicStats } from "@/middlewares/csp";
 import { requireAuth } from "@/middlewares/requireAuth";
 import { validateRequest } from "@/middlewares/validateRequest";
+import { ProductResponse, ProductsResponse } from "common";
 import { Router } from "express";
 import z from "zod";
 import { ProductNotFoundError } from "./products.errors";
@@ -14,7 +15,6 @@ import {
   getProductById,
   getProducts,
   getPublicStats,
-  PRODUCTS_PER_PAGE,
   updateProduct,
 } from "./products.service";
 
@@ -32,7 +32,7 @@ export default Router()
 
       const products = await getProducts(search, page);
 
-      res.json({ pageNumber: page, pageSize: PRODUCTS_PER_PAGE, products });
+      res.json({ products } satisfies ProductsResponse);
     }
   )
 
@@ -54,11 +54,12 @@ export default Router()
     }),
     async function (req, res) {
       const product = await getProductById(req.params.productId);
+      console.log(product);
       if (!product) {
         throw new ProductNotFoundError();
       }
 
-      res.json({ product });
+      res.json({ product } satisfies ProductResponse);
     }
   )
   .put(

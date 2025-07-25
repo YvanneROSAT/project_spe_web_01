@@ -8,9 +8,9 @@ const CATEGORIES = ["Alimentation", "Ameublement", "Sport"];
 
 async function seedCategories() {
   console.log("Seeding categories...");
-  const categoryData = CATEGORIES.map((label) => ({ 
+  const categoryData = CATEGORIES.map((label) => ({
     categoryId: createId(),
-    label 
+    label,
   }));
   await db.insert(categoriesTable).values(categoryData);
   return await db.select().from(categoriesTable);
@@ -26,7 +26,7 @@ async function seedProducts(numberOfProducts: number = 50) {
     const category = faker.helpers.arrayElement(categoryList);
     productsData.push({
       productId: createId(),
-      label: faker.commerce.productName(),
+      name: faker.commerce.productName(),
       description: faker.commerce.productDescription(),
       price: faker.commerce.price({ min: 5, max: 500, dec: 2 }),
       categoryId: category.categoryId!,
@@ -50,7 +50,7 @@ async function seedPictures() {
     );
     const categoryName = category?.label?.toLowerCase() || "unknown";
     const productName =
-      product.label?.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase() || "product";
+      product.name?.replace(/[^a-zA-Z0-9]/g, "_").toLowerCase() || "product";
     const imageCount = faker.number.int({ min: 1, max: 3 });
 
     for (let i = 1; i <= imageCount; i++) {

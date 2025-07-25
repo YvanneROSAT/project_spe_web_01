@@ -1,5 +1,6 @@
 import { db } from "@/db/connection";
 import { categoriesTable, picturesTable, productsTable } from "@/db/schema";
+import { Product } from "common";
 import { count, eq, like, sql } from "drizzle-orm";
 import { UpdateProductInput } from "./products.schemas";
 
@@ -9,7 +10,7 @@ export function formatProduct(
   product: typeof productsTable.$inferSelect,
   category: typeof categoriesTable.$inferSelect | null,
   pictures: (typeof picturesTable.$inferSelect)[]
-) {
+): Product {
   return {
     id: product.productId,
     name: product.name,
@@ -19,14 +20,14 @@ export function formatProduct(
       id: category.categoryId,
       label: category.label,
     },
-    pictures: [pictures.map((p) => process.env.BACKEND_URL + "/" + p.path)],
+    pictures: pictures.map((p) => process.env.BACKEND_URL + "/" + p.path),
   };
 }
 
 export async function getProducts(
   search: string | undefined,
   page: number = 0
-) {
+): Promise<Product[]> {
   return db.query.productsTable
     .findMany({
       limit: PRODUCTS_PER_PAGE,
@@ -59,7 +60,7 @@ export async function getProducts(
     );
 }
 
-export async function getProductById(id: string) {
+export async function getProductById(id: string): Promise<Product | null> {
   return db
     .select()
     .from(productsTable)

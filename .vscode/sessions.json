@@ -8,6 +8,19 @@
     "default": [
       [
         {
+          "name": "common",
+          "color": "terminal.ansiYellow",
+          "icon": "package",
+          "autoExecuteCommands": true,
+          "joinOperator": "&&",
+          "commands": [
+            "cd common",
+            "pnpm dev"
+          ]
+        }
+      ],
+      [
+        {
           "name": "backend",
           "color": "terminal.ansiBlue",
           "icon": "server",
