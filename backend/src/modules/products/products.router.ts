@@ -16,6 +16,7 @@ import {
   singleProductParamsSchema,
 } from "./products.schemas";
 import {
+  PRODUCTS_PER_PAGE,
   createProduct,
   deleteProduct,
   getProductById,
@@ -38,7 +39,7 @@ export default Router()
 
       const products = await getProducts(search, page);
 
-      res.json({ products } satisfies ProductsResponse);
+      res.json({ products, pageSize: PRODUCTS_PER_PAGE } satisfies ProductsResponse);
     }
   )
   .post(

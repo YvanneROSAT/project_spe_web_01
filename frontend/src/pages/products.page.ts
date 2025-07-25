@@ -7,10 +7,14 @@ export default {
     <div class="row" id="productsContainer">
       <p>Chargement...</p>
     </div>
-    <button type="button" class="btn btn-secondary mt-3" onclick="history.back()">Retour</button>
+    <button type="button" class="btn btn-secondary m-2" onclick="history.back()">Retour</button>
   `,
   onLoad: async function () {
-    const products = await getProducts();
+    const url = new URL(window.location.href);
+    const params = new URLSearchParams(url.search);
+    const currentPage = parseInt(params.get("page") ?? "0");
+
+    const { products, pageSize } = await getProducts(currentPage);
 
     const productsContainer = document.getElementById("productsContainer");
     if (productsContainer) {
@@ -31,6 +35,25 @@ export default {
             )
             .join("")
         : "<p>Oh oh, c'est vide ici</p>";
+    }
+
+    const nextPageLink = document.createElement("a");
+    nextPageLink.href = `/products?page=${currentPage + 1}`;
+    nextPageLink.textContent = "Page suivante";
+    nextPageLink.classList.add("btn", "btn-primary", "m-2");
+
+    const previousPageLink = document.createElement("a");
+    previousPageLink.href = `/products?page=${currentPage - 1}`;
+    previousPageLink.textContent = "Page précédente";
+    previousPageLink.classList.add("btn", "btn-primary", "m-2");
+
+    const root = document.querySelector("#app");
+    if (currentPage > 0) {
+      root?.appendChild(previousPageLink);
+    }
+
+    if (products.length === pageSize) {
+      root?.appendChild(nextPageLink);
     }
   },
 } satisfies Page;

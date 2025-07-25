@@ -10,20 +10,26 @@ import {
   loginResponseSchema,
   type Product,
   productResponseSchema,
+  type ProductsResponse,
   productsResponseSchema,
   type RegisterInput,
 } from "common";
 import { BACKEND_URL } from "./config";
 
-export async function getProducts(): Promise<Product[]> {
+export async function getProducts(page: number): Promise<ProductsResponse> {
   try {
-    const res = await axios.get(BACKEND_URL + "/products");
+    const res = await axios.get(BACKEND_URL + "/products", {
+      params: { page },
+    });
 
-    return productsResponseSchema.parse(res.data).products;
+    return productsResponseSchema.parse(res.data);
   } catch (err) {
     console.error(err);
 
-    return [];
+    return {
+      products: [],
+      pageSize: 0,
+    };
   }
 }
 
