@@ -12,6 +12,7 @@ import {
   getIsPasswordSafe,
   hashPassword,
 } from "@/modules/auth/password";
+import { LoginResponse } from "common";
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import {
@@ -64,7 +65,7 @@ export default Router()
             firstName: user.firstName,
             lastName: user.lastName,
           },
-        });
+        } satisfies LoginResponse);
     }
   )
   .post(
