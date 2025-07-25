@@ -4,10 +4,7 @@ import type { Route } from "../types";
 export default {
   html: `
   <div id="productContainer">
-    <h2 id="productName">Chargement</h2>
-    <p id="productDescription">Chargement</p>
-    <p><strong>Prix : <span id="productPrice">Chargement</span> €</strong></p>
-    <button type="button" class="btn btn-secondary mt-3" onclick="history.back()">Retour</button>
+    <h1>Chargement...</h1>
   </div>
 `,
   onLoad: async function () {
@@ -29,22 +26,11 @@ export default {
       return;
     }
 
-    console.log(product, product.price, typeof product.price);
-
-    const productName = document.getElementById("productName");
-    const productDescription = document.getElementById("productDescription");
-    const productPrice = document.getElementById("productPrice");
-
-    if (productName) {
-      productName.textContent = product.name;
-    }
-
-    if (productDescription) {
-      productDescription.textContent = product.description;
-    }
-
-    if (productPrice) {
-      productPrice.textContent = product.price;
-    }
+    productContainer.innerHTML = `
+      <h2>${product.name}</h2>
+      <p>${product.description}</p>
+      <p><strong>Prix : <span>${product.price}</span> €</strong></p>
+      <button type="button" class="btn btn-secondary mt-3" onclick="history.back()">Retour</button>
+    `;
   },
 } satisfies Route;
