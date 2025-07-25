@@ -31,12 +31,12 @@ express()
   .use(errorHandler)
 
   .listen(process.env.PORT, () => {
-    logger.info(`🚀 Serveur démarré sur le port ${process.env.PORT}`);
+    logger.info(`🚀 Serveur démarré: ${process.env.BACKEND_URL}`);
     logger.info(
-      `📊 Statistiques publiques: http://localhost:${process.env.PORT}/products/stats`
+      `📊 Statistiques publiques: ${process.env.BACKEND_URL}/products/stats`
     );
     logger.info(
-      `🔒 Rapports CSP admin: http://localhost:${process.env.PORT}/admin/csp-reports`
+      `🔒 Rapports CSP admin: ${process.env.BACKEND_URL}/admin/csp-reports`
     );
     logger.info(`🛡️ CSP configuré avec reporting sur: /csp-report`);
   });

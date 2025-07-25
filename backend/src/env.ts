@@ -10,6 +10,7 @@ const envSchema = z.object({
   NODE_ENV: z.enum(["dev", "production", "test"]).default("production"),
   LOG_LEVEL: z.enum(["debug", "info", "error"]).default("info"),
   PORT: z.coerce.number().default(3000),
+  BACKEND_URL: z.url(),
   FRONTEND_URL: z.url(),
 
   // auth

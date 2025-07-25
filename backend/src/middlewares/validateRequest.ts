@@ -1,4 +1,4 @@
-import { NextFunction, RequestHandler } from "express";
+import { RequestHandler } from "express";
 import z from "zod";
 
 async function validateAndFreeze<T extends z.ZodObject>(
@@ -12,7 +12,7 @@ async function validateAndFreeze<T extends z.ZodObject>(
 export function validateRequest<
   Body extends z.ZodObject,
   Query extends z.ZodObject,
-  Params extends z.ZodObject
+  Params extends z.ZodObject,
 >(schemas: {
   body?: Body;
   query?: Query;
@@ -23,7 +23,7 @@ export function validateRequest<
   Readonly<z.infer<Body>>,
   Readonly<z.infer<Query>>
 > {
-  return async (req, res, next: NextFunction) => {
+  return async (req, res, next) => {
     try {
       for (const key of ["body", "query", "params"] as const) {
         const schema = schemas[key];
