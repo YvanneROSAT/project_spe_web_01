@@ -31,13 +31,17 @@ export default {
 	`,
   onLoad: function () {
     const form = document.querySelector<HTMLFormElement>("#loginForm");
-    if (!form) return;
+    if (!form) {
+      return;
+    }
 
     form.addEventListener("submit", handleSubmit);
 
     async function handleSubmit(event: SubmitEvent) {
       event.preventDefault();
-      if (!form) return;
+      if (!form) {
+        return;
+      }
 
       const rawData = extractFormData(form);
       const result = validateLoginData(rawData);
@@ -48,10 +52,10 @@ export default {
       }
 
       try {
-        const res = await login(result.data);
-        if (res) {
-          localStorage.setItem("accessToken", res.accessToken);
-          localStorage.setItem("user", JSON.stringify(res.user));
+        const success = await login(result.data);
+        if (success) {
+          localStorage.setItem("accessToken", success.accessToken);
+          localStorage.setItem("user", JSON.stringify(success.user));
           window.location.href = "/";
         }
       } catch (err) {

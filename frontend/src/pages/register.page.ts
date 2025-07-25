@@ -50,13 +50,17 @@ export default {
 	`,
   onLoad: function () {
     const form = document.querySelector<HTMLFormElement>("#registerForm");
-    if (!form) return;
+    if (!form) {
+      return;
+    }
 
     form.addEventListener("submit", handleSubmit);
 
     async function handleSubmit(e: SubmitEvent) {
       e.preventDefault();
-      if (!form) return;
+      if (!form) {
+        return;
+      }
 
       const rawData = extractFormData(form);
       const result = validateFormData(rawData);
@@ -67,7 +71,9 @@ export default {
       }
 
       const success = await register(result.data);
-      if (success) await login(result.data);
+      if (success) {
+        await login(result.data);
+      }
     }
   },
 } satisfies Page;
