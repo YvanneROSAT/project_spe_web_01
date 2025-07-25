@@ -1,4 +1,6 @@
+import { REFRESH_TOKEN_COOKIE_NAME } from "@/config";
 import { usersTable } from "@/db/schema";
+import cookieParser from "cookie-parser";
 import express from "express";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -7,10 +9,12 @@ import authRouter from "./auth.router"; // adjust path
 const mGetUserByEmail = vi.hoisted(() => vi.fn());
 const mCreateUser = vi.hoisted(() => vi.fn());
 const mCreateSession = vi.hoisted(() => vi.fn());
+const mInvalidateSession = vi.hoisted(() => vi.fn());
 vi.mock("./auth.service", () => ({
   getUserByEmail: mGetUserByEmail,
   createUser: mCreateUser,
   createSession: mCreateSession,
+  invalidateSession: mInvalidateSession,
 }));
 
 const mGetIsPasswordSafe = vi.hoisted(() => vi.fn());
@@ -22,11 +26,23 @@ vi.mock("./password", () => ({
   hashPassword: mHashPassword,
 }));
 
+vi.mock("@/cache", () => ({}));
+
 const mAccessToken = "mockedAccessToken";
 const mRefreshToken = "mockedRefreshToken";
-vi.mock("./jwt", () => ({
+const mVerifyRefreshToken = vi.hoisted(() => vi.fn());
+const mBlacklistAccessToken = vi.hoisted(() => vi.fn());
+vi.mock("./jwt", async (importOriginal) => ({
+  ...(await importOriginal()),
   generateAccessToken: () => mAccessToken,
   generateRefreshToken: () => mRefreshToken,
+  verifyRefreshToken: mVerifyRefreshToken,
+  blacklistAccessToken: mBlacklistAccessToken,
+}));
+
+const mRequireAuth = vi.hoisted(() => vi.fn((req, res, next) => next()));
+vi.mock("@/middlewares/requireAuth", () => ({
+  requireAuth: mRequireAuth,
 }));
 
 const mUser: typeof usersTable.$inferSelect = {
@@ -40,9 +56,7 @@ const mUser: typeof usersTable.$inferSelect = {
   lastLogin: new Date("2025-04-03"),
 };
 
-const app = express();
-app.use(express.json());
-app.use(authRouter);
+const app = express().use(express.json()).use(cookieParser()).use(authRouter);
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -169,5 +183,23 @@ describe("POST /register", () => {
 
     expect(lastResponse?.status).toBe(429);
     expect(lastResponse?.text).toMatch(/Too many requests/i);
+  });
+});
+
+describe("DELETE /logout", () => {
+  it("should clear session and return 200", async () => {
+    mVerifyRefreshToken.mockReturnValue({ sessionId: "mockSessionId" });
+
+    const res = await request(app)
+      .delete("/logout")
+      .set("Authorization", `Bearer ${mAccessToken}`)
+      .set("Cookie", [`${REFRESH_TOKEN_COOKIE_NAME}=${mRefreshToken}`])
+      .send();
+
+    expect(res.status).toBe(200);
+    expect(mRequireAuth).toHaveBeenCalled();
+    expect(mBlacklistAccessToken).toHaveBeenCalledWith(mAccessToken);
+    expect(mVerifyRefreshToken).toHaveBeenCalledWith(mRefreshToken);
+    expect(mInvalidateSession).toHaveBeenCalledWith("mockSessionId");
   });
 });

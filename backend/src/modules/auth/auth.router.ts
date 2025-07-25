@@ -101,8 +101,8 @@ export default Router()
     }
   )
   .delete("/logout", requireAuth, async function (req, res) {
-    const refreshToken = getRefreshTokenFromRequest(req);
     const accessToken = getAccessTokenFromRequest(req);
+    const refreshToken = getRefreshTokenFromRequest(req);
 
     if (accessToken) {
       await blacklistAccessToken(accessToken);
@@ -114,11 +114,9 @@ export default Router()
       if (payload) {
         await invalidateSession(payload.sessionId);
       }
-
-      res.clearCookie(REFRESH_TOKEN_COOKIE_NAME);
     }
 
-    res.send();
+    res.clearCookie(REFRESH_TOKEN_COOKIE_NAME).send();
   })
   // todo: for testing purposes, remove in prod
   .get("/dev", requireAuth, async function (req, res) {
