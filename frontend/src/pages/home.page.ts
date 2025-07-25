@@ -1,5 +1,5 @@
 import { getUser } from "../auth";
-import type { Route } from "../types";
+import type { Page } from "../types";
 
 export default {
   html: `
@@ -27,4 +27,4 @@ export default {
       welcomeMessage.textContent = `Bienvenue, ${user.firstName}`;
     }
   },
-} satisfies Route;
+} satisfies Page;

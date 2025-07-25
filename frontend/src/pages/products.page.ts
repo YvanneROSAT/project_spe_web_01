@@ -1,5 +1,5 @@
 import { getProducts } from "../api";
-import type { Route } from "../types";
+import type { Page } from "../types";
 
 export default {
   html: `
@@ -33,4 +33,4 @@ export default {
         : "<p>Oh oh, c'est vide ici</p>";
     }
   },
-} satisfies Route;
+} satisfies Page;

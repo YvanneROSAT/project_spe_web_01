@@ -1,14 +1,14 @@
-import homeRoute from "./routes/home.route";
-import loginRoute from "./routes/login.route";
-import productRoute from "./routes/product.route";
-import productsRoute from "./routes/products.route";
-import registerRoute from "./routes/register.route";
+import homeRoute from "./pages/home.page";
+import loginRoute from "./pages/login.page";
+import productRoute from "./pages/product.page";
+import productsRoute from "./pages/products.page";
+import registerRoute from "./pages/register.page";
 import "./style.css";
-import type { Route } from "./types";
+import type { Page } from "./types";
 
 const app = document.querySelector<HTMLDivElement>("#app");
 
-const routes: Record<string, Route> = {
+const routes: Record<string, Page> = {
   "/": homeRoute,
   "/login": loginRoute,
   "/register": registerRoute,
@@ -16,7 +16,7 @@ const routes: Record<string, Route> = {
   "/products": productsRoute,
   404: { html: `<h1>404</h1><p>Page not found.</p>` },
 };
-let currentRoute: Route | null = null;
+let currentPage: Page | null = null;
 
 export async function router() {
   if (!app) {
@@ -25,12 +25,12 @@ export async function router() {
 
   const path = location.pathname.split("?")[0] || "/";
 
-  await currentRoute?.onDestroy?.();
+  await currentPage?.onDestroy?.();
 
-  currentRoute = routes[path] || routes[404];
+  currentPage = routes[path] || routes[404];
 
-  app.innerHTML = currentRoute.html;
-  await currentRoute.onLoad?.();
+  app.innerHTML = currentPage.html;
+  await currentPage.onLoad?.();
 }
 
 window.addEventListener("load", router);

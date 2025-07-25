@@ -1,5 +1,5 @@
 import { getProduct } from "../api";
-import type { Route } from "../types";
+import type { Page } from "../types";
 
 export default {
   html: `
@@ -33,4 +33,4 @@ export default {
       <button type="button" class="btn btn-secondary mt-3" onclick="history.back()">Retour</button>
     `;
   },
-} satisfies Route;
+} satisfies Page;

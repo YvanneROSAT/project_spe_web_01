@@ -1,6 +1,6 @@
 import { registerSchema } from "common";
 import { register } from "../api";
-import type { Route } from "../types";
+import type { Page } from "../types";
 
 export default {
   html: `
@@ -67,4 +67,4 @@ export default {
     }
     form.addEventListener("submit", handleSubmit);
   },
-} satisfies Route;
+} satisfies Page;
