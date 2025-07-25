@@ -24,7 +24,7 @@ export function generateAccessToken(userId: string): string {
 
 export function generateRefreshToken(userId: string): string {
   return jwt.sign(
-    { userId } satisfies Omit<RefreshTokenPayload, "exp">,
+    { sub: userId } satisfies Omit<RefreshTokenPayload, "exp">,
     process.env.REFRESH_TOKEN_SECRET,
     {
       expiresIn: "14d",

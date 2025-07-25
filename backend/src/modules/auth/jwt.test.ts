@@ -114,7 +114,7 @@ describe("verifyRefreshToken", () => {
     process.env.REFRESH_TOKEN_SECRET = mSecret;
 
     const mUserId = createId();
-    const mRefreshToken = jwt.sign({ userId: mUserId }, mSecret, {
+    const mRefreshToken = jwt.sign({ sub: mUserId }, mSecret, {
       expiresIn: "10s",
     });
 
@@ -122,7 +122,7 @@ describe("verifyRefreshToken", () => {
 
     expect(payload).toEqual({
       exp: Math.floor(Date.now() / 1000) + 10, // in 10 seconds
-      userId: mUserId,
+      sub: mUserId,
     });
   });
 });

@@ -115,6 +115,6 @@ export default Router()
       throw new TokenExpiredError();
     }
 
-    const newAccessToken = generateAccessToken(payload.userId);
+    const newAccessToken = generateAccessToken(payload.sub);
     res.json({ newAccessToken });
   });

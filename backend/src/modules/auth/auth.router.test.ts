@@ -1,20 +1,18 @@
 import { REFRESH_TOKEN_COOKIE_NAME } from "@/config";
 import { usersTable } from "@/db/schema";
+import { createId } from "@paralleldrive/cuid2";
 import cookieParser from "cookie-parser";
 import express from "express";
+import jwt from "jsonwebtoken";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import authRouter from "./auth.router"; // adjust path
+import authRouter from "./auth.router";
 
 const mGetUserByEmail = vi.hoisted(() => vi.fn());
 const mCreateUser = vi.hoisted(() => vi.fn());
-const mCreateSession = vi.hoisted(() => vi.fn());
-const mInvalidateSession = vi.hoisted(() => vi.fn());
 vi.mock("./auth.service", () => ({
   getUserByEmail: mGetUserByEmail,
   createUser: mCreateUser,
-  createSession: mCreateSession,
-  invalidateSession: mInvalidateSession,
 }));
 
 const mGetIsPasswordSafe = vi.hoisted(() => vi.fn());
@@ -28,8 +26,17 @@ vi.mock("./password", () => ({
 
 vi.mock("@/cache", () => ({}));
 
-const mAccessToken = "mockedAccessToken";
-const mRefreshToken = "mockedRefreshToken";
+const mUserId = createId();
+const mJti = createId();
+const mSecret = "secret";
+
+const mAccessToken = jwt.sign({ sub: mUserId, jti: mJti }, mSecret, {
+  expiresIn: "1d",
+});
+const mRefreshToken = jwt.sign({ sub: mUserId }, mSecret, {
+  expiresIn: "1y",
+});
+
 const mVerifyRefreshToken = vi.hoisted(() => vi.fn());
 const mBlacklistAccessToken = vi.hoisted(() => vi.fn());
 vi.mock("./jwt", async (importOriginal) => ({
@@ -46,7 +53,7 @@ vi.mock("@/middlewares/requireAuth", () => ({
 }));
 
 const mUser: typeof usersTable.$inferSelect = {
-  userId: "123",
+  userId: mUserId,
   email: "john.smith@mail.com",
   firstName: "John",
   lastName: "Smith",
@@ -60,13 +67,15 @@ const app = express().use(express.json()).use(cookieParser()).use(authRouter);
 
 beforeEach(() => {
   vi.clearAllMocks();
+
+  process.env.ACCESS_TOKEN_SECRET = mSecret;
+  process.env.REFRESH_TOKEN_SECRET = mSecret;
 });
 
 describe("POST /login", () => {
   it("should return token on successful login", async () => {
     mGetUserByEmail.mockResolvedValue(mUser);
     mComparePassword.mockResolvedValue(true);
-    mCreateSession.mockResolvedValue("sessionId");
 
     const mData = {
       email: "john.smith@mail.com",
@@ -91,13 +100,6 @@ describe("POST /login", () => {
     expect(mComparePassword).toHaveBeenCalledWith(
       mData.password,
       mUser.passwordHash
-    );
-    expect(mCreateSession).toHaveResolvedTimes(1);
-    expect(mCreateSession).toHaveBeenCalledWith(
-      mUser.userId,
-      mRefreshToken,
-      "",
-      "::ffff:127.0.0.1"
     );
   });
 
@@ -187,8 +189,8 @@ describe("POST /register", () => {
 });
 
 describe("DELETE /logout", () => {
-  it("should clear session and return 200", async () => {
-    mVerifyRefreshToken.mockReturnValue({ sessionId: "mockSessionId" });
+  it("should blacklist token and return 200", async () => {
+    mVerifyRefreshToken.mockReturnValue({ sub: "mockUserId" });
 
     const res = await request(app)
       .delete("/logout")
@@ -199,7 +201,5 @@ describe("DELETE /logout", () => {
     expect(res.status).toBe(200);
     expect(mRequireAuth).toHaveBeenCalled();
     expect(mBlacklistAccessToken).toHaveBeenCalledWith(mAccessToken);
-    expect(mVerifyRefreshToken).toHaveBeenCalledWith(mRefreshToken);
-    expect(mInvalidateSession).toHaveBeenCalledWith("mockSessionId");
   });
 });
