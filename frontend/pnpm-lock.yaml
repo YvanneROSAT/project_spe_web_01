@@ -11,6 +11,9 @@ importers:
       bootstrap:
         specifier: ^5.3.7
         version: 5.3.7(@popperjs/core@2.11.8)
+      dotenv:
+        specifier: ^17.2.1
+        version: 17.2.1
     devDependencies:
       vite:
         specifier: ^7.0.5
@@ -285,6 +288,10 @@ packages:
     peerDependencies:
       '@popperjs/core': ^2.11.8
 
+  dotenv@17.2.1:
+    resolution: {integrity: sha512-kQhDYKZecqnM0fCnzI5eIv5L4cAe/iRI+HqMbO/hbRdTAeXDG+M9FjipUxNfbARuEg4iHIbhnhs78BCHNbSxEQ==}
+    engines: {node: '>=12'}
+
   esbuild@0.25.8:
     resolution: {integrity: sha512-vVC0USHGtMi8+R4Kz8rt6JhEWLxsv9Rnu/lGYbPR8u47B+DCBksq9JarW0zOO7bs37hyOK1l2/oqtbciutL5+Q==}
     engines: {node: '>=18'}
@@ -519,6 +526,8 @@ snapshots:
   bootstrap@5.3.7(@popperjs/core@2.11.8):
     dependencies:
       '@popperjs/core': 2.11.8
+
+  dotenv@17.2.1: {}
 
   esbuild@0.25.8:
     optionalDependencies:
