@@ -33,7 +33,7 @@ export default Router()
     }
   )
 
-  // rapports Admin CSP (authentifiée avec CSRF)
+  // rapports Admin CSP
   .get(
     "/admin/csp-reports",
     requireAuth,
@@ -49,7 +49,7 @@ export default Router()
     }
   )
 
-  // Statistiques des violations CSP (authentifiée avec CSRF)
+  // Statistiques des violations CSP
   .get("/admin/csp-stats", requireAuth, async (req, res) => {
     try {
       const stats = await getCSPStats();
