@@ -23,8 +23,8 @@ export default Router()
     "/",
     validateRequest({
       query: z.object({
-        search: z.string(),
-        page: z.coerce.number(),
+        search: z.string().optional(),
+        page: z.coerce.number().optional(),
       }),
     }),
     async function (req, res) {
@@ -32,9 +32,7 @@ export default Router()
 
       const products = await getProducts(search, page);
 
-      res
-        .json({ pageNumber: page, pageSize: PRODUCTS_PER_PAGE, products })
-        .send();
+      res.json({ pageNumber: page, pageSize: PRODUCTS_PER_PAGE, products });
     }
   )
 

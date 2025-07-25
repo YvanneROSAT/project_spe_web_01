@@ -7,14 +7,14 @@ import { Home } from "./views/home.js";
 import { Login, setupLoginFormHandler } from "./views/login.js";
 import { Logout } from "./views/logout.js";
 import { ProductDetail } from "./views/product-details.js";
-import { ProductList } from "./views/products.js";
+import { ProductList, setupProductsPage } from "./views/products.js";
 import { Register, setupRegisterFormHandler } from "./views/register.js";
 
 const routes = {
   "#/": { getHtml: Home, initFn: null },
   "#/login": { getHtml: Login, initFn: setupLoginFormHandler },
   "#/register": { getHtml: Register, initFn: setupRegisterFormHandler },
-  "#/products": { getHtml: ProductList, initFn: null },
+  "#/products": { getHtml: ProductList, initFn: setupProductsPage },
   "#/product": { getHtml: ProductDetail, initFn: null },
   "#/cart": { getHtml: Cart, initFn: null },
   "#/dashboard": { getHtml: Dashboard, initFn: null },

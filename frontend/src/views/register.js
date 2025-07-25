@@ -1,7 +1,7 @@
 export function Register() {
   return `
     <h2>Inscription</h2>
-    <form id="registerForm">
+    <form id="registerForm" method="POST">
       <div class="mb-3">
         <label for="firstname" class="form-label">Prénom</label>
         <input type="text" class="form-control" id="firstname" name="firstname" />
@@ -30,10 +30,9 @@ export function Register() {
 
 export function setupRegisterFormHandler() {
   const form = document.getElementById("registerForm");
-
   if (!form) return;
 
-  form.addEventListener("submit", (e) => {
+  async function handleSubmit(e) {
     e.preventDefault();
 
     const formData = new FormData(form);
@@ -45,10 +44,11 @@ export function setupRegisterFormHandler() {
       return;
     }
 
-    fetch("http://localhost:5000/auth/register", {
+    const res = await fetch(BACKEND_URL + "/auth/register", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
-  });
+  }
+  form.addEventListener("submit", handleSubmit);
 }

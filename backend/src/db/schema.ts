@@ -35,7 +35,7 @@ export const productsTable = mysqlTable("products", {
   productId: varchar("Id_Products", { length: 36 })
     .primaryKey()
     .$defaultFn(() => createId()),
-  label: varchar("label", { length: 50 }),
+  name: varchar("name", { length: 50 }),
   description: text("description"),
   price: decimal("price", { precision: 5, scale: 2 }),
   categoryId: varchar("Id_categories", { length: 36 }).notNull(),

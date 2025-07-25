@@ -12,7 +12,7 @@ export function formatProduct(
 ) {
   return {
     id: product.productId,
-    label: product.label,
+    name: product.name,
     description: product.description,
     price: product.price,
     category: category && {
@@ -23,24 +23,39 @@ export function formatProduct(
   };
 }
 
-export async function getProducts(search: string, page: number = 0) {
-  return await db
-    .select()
-    .from(productsTable)
-    .leftJoin(
-      categoriesTable,
-      eq(productsTable.categoryId, categoriesTable.categoryId)
-    )
-
-    .where(
-      like(sql`lower(${productsTable.label})`, `%${search.toLowerCase()}%`)
-    )
-    .limit(PRODUCTS_PER_PAGE)
-    .offset(page * PRODUCTS_PER_PAGE)
-    .then((rows) =>
-      rows.map(({ products, categories }) =>
-        formatProduct(products, categories, [])
-      )
+export async function getProducts(
+  search: string | undefined,
+  page: number = 0
+) {
+  return db.query.productsTable
+    .findMany({
+      limit: PRODUCTS_PER_PAGE,
+      offset: page * PRODUCTS_PER_PAGE,
+      where: search
+        ? like(
+            sql`lower(${productsTable.name})`,
+            search ? `%${search.toLowerCase()}%` : ""
+          )
+        : undefined,
+      with: {
+        category: true,
+        pictures: true,
+      },
+    })
+    .then((products) =>
+      products.map((product) => ({
+        id: product.productId,
+        name: product.name,
+        description: product.description,
+        price: product.price,
+        category: product.category && {
+          id: product.category.categoryId,
+          label: product.category.label,
+        },
+        pictures: product.pictures.map(
+          (p) => process.env.BACKEND_URL + "/" + p.path
+        ),
+      }))
     );
 }
 
