@@ -1,10 +1,11 @@
+import { logout } from "../api";
 import { getUser } from "../auth";
 import type { Page } from "../types";
 
 export default {
   html: `
     <h1 class="text-center" id="welcomeMessage">Bienvenue</h1>
-    <div class="text-center mt-4">
+    <div class="text-center mt-4" id="linkContainer">
       <a href="/login" id="loginLink" class="btn btn-primary m-2">Se connecter</a>
       <a href="/register" id="registerLink" class="btn btn-secondary m-2">S'inscrire</a>
       <a href="/products" class="btn btn-info m-2">Voir les produits</a>
@@ -12,12 +13,22 @@ export default {
     </div>
   `,
   onLoad: function () {
+    const linkContainer = document.getElementById("linkContainer");
     const welcomeMessage = document.getElementById("welcomeMessage");
     const loginLink = document.getElementById("loginLink");
     const registerLink = document.getElementById("registerLink");
 
-    if (!welcomeMessage || !loginLink || !registerLink) {
+    if (!linkContainer || !welcomeMessage || !loginLink || !registerLink) {
       return;
+    }
+
+    async function handleLogout() {
+      await logout();
+
+      localStorage.removeItem("user");
+      localStorage.removeItem("accessToken");
+
+      window.location.href = "/";
     }
 
     const user = getUser();
@@ -25,6 +36,13 @@ export default {
       loginLink.remove();
       registerLink.remove();
       welcomeMessage.textContent = `Bienvenue, ${user.firstName}`;
+
+      const logoutButton = document.createElement("button");
+      logoutButton.classList.add("btn", "btn-danger", "m-2");
+      logoutButton.textContent = "Se Déconnecter  ";
+      logoutButton.addEventListener("click", handleLogout);
+
+      linkContainer.appendChild(logoutButton);
     }
   },
 } satisfies Page;

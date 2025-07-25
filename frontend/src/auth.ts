@@ -8,3 +8,7 @@ export function getUser(): User | null {
 
   return JSON.parse(str);
 }
+
+export function getAccessToken() {
+  return localStorage.getItem("accessToken");
+}

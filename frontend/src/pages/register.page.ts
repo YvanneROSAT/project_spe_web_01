@@ -61,9 +61,7 @@ export default {
         return;
       }
 
-      const res = await register(data);
-
-      console.log(res);
+      await register(data);
     }
     form.addEventListener("submit", handleSubmit);
   },

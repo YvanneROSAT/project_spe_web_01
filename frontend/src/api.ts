@@ -61,7 +61,7 @@ export async function register(input: RegisterInput): Promise<void> {
 
   switch (res.status) {
     case 200:
-      window.location.href = "/login";
+      await login(input);
       break;
     case 403:
       alert("Identifiants deja utilises");
@@ -69,4 +69,10 @@ export async function register(input: RegisterInput): Promise<void> {
     default:
       alert("Une erreur est survenue");
   }
+}
+
+export async function logout(): Promise<boolean> {
+  const res = await axios.delete(BACKEND_URL + "/auth/logout");
+
+  return res.status === 200;
 }

@@ -1,3 +1,5 @@
+import axios from "axios";
+import { getAccessToken } from "./auth";
 import homeRoute from "./pages/home.page";
 import loginRoute from "./pages/login.page";
 import productRoute from "./pages/product.page";
@@ -5,6 +7,15 @@ import productsRoute from "./pages/products.page";
 import registerRoute from "./pages/register.page";
 import "./style.css";
 import type { Page } from "./types";
+
+axios.interceptors.request.use(function (config) {
+  const accessToken = getAccessToken();
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
+
+  return config;
+});
 
 const app = document.querySelector<HTMLDivElement>("#app");
 
