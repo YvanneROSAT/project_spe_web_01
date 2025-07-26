@@ -67,6 +67,12 @@ async function seedPictures() {
 
 export async function seedDatabase(numberOfProducts: number = 50) {
   try {
+    console.log("Deleting current data...");
+
+    await db.delete(categoriesTable);
+    await db.delete(productsTable);
+    await db.delete(picturesTable);
+
     console.log("Starting database seeding...");
 
     await seedCategories();
