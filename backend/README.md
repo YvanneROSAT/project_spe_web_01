@@ -50,12 +50,12 @@ pnpm run dev
 
 ### Architecture de sécurité
 
-| Endpoint | CSP | CORS | Auth | Description |
-|----------|-----|------|------|-------------|
-| `/products/stats` | ❌ | ✅ Ouvert | ❌ | Statistiques publiques |
-| `/csp-report` | ❌ | ✅ Restreint | ❌ | Collecte violations |
-| `/auth/*` | ✅ Strict | ✅ Restreint | Variable | Authentification |
-| `/admin/csp-*` | ✅ Strict | ✅ Restreint | ✅ JWT+CSRF | Interface admin |
+| Endpoint          | CSP       | CORS         | Auth        | Description            |
+| ----------------- | --------- | ------------ | ----------- | ---------------------- |
+| `/products/stats` | ❌        | ✅ Ouvert    | ❌          | Statistiques publiques |
+| `/csp-report`     | ❌        | ✅ Restreint | ❌          | Collecte violations    |
+| `/auth/*`         | ✅ Strict | ✅ Restreint | Variable    | Authentification       |
+| `/admin/csp-*`    | ✅ Strict | ✅ Restreint | ✅ JWT+CSRF | Interface admin        |
 
 ### Politique CSP appliquée
 
@@ -85,8 +85,9 @@ chmod +x test-csp.sh
 ```
 
 Le script `test-csp.sh` vérifie automatiquement :
+
 - ✅ Statistiques publiques (sans CSP)
-- ✅ Collecte des violations CSP  
+- ✅ Collecte des violations CSP
 - ✅ Protection admin par authentification
 - ✅ En-têtes de sécurité présents
 
@@ -104,8 +105,9 @@ npx serve -l 8080 .
 ```
 
 Le fichier `test-csp.html` génère intentionnellement :
+
 - Scripts inline sans nonce
-- Images/iframes externes non autorisés  
+- Images/iframes externes non autorisés
 - Event handlers inline
 - Chargement de scripts malveillants
 
@@ -120,7 +122,7 @@ USE project_spe_web;
 SELECT * FROM csp_reports ORDER BY created_at DESC LIMIT 5;
 
 -- Statistiques par directive
-SELECT 
+SELECT
   JSON_EXTRACT(report_data, '$."csp-report"."violated-directive"') as directive,
   COUNT(*) as count
 FROM csp_reports GROUP BY directive;
@@ -158,7 +160,7 @@ curl -H "Cookie: token=YOUR_TOKEN; csrf_token=YOUR_CSRF" \
 // ✅ Doit fonctionner (stats publiques)
 fetch('http://localhost:5000/products/stats')
 
-// ✅ Doit fonctionner (auth depuis localhost:3000)  
+// ✅ Doit fonctionner (auth depuis localhost:3000)
 fetch('http://localhost:5000/auth/login', {method: 'POST', ...})
 
 // ❌ Doit échouer (autre domaine)
@@ -171,7 +173,7 @@ fetch('http://localhost:5000/auth/login', {method: 'POST', ...})
 
 ```sh
 pnpm run dev      # Mode développement avec watch
-pnpm run build    # Compilation TypeScript  
+pnpm run build    # Compilation TypeScript
 pnpm run start    # Mode production
 pnpm run seed     # Générer données de test
 pnpm run db:start # Lancer MySQL via Docker
@@ -192,20 +194,20 @@ src/
 
 ### Variables d'environnement requises
 
-| Variable | Description | Exemple |
-|----------|-------------|---------|
-| `JWT_SECRET` | Clé secrète JWT | `your-256-bit-secret` |
-| `FRONTEND_URL` | URL du frontend | `http://localhost:3000` |
-| `DB_PASSWORD` | Mot de passe MySQL | `mysecretpassword` |
+| Variable       | Description        | Exemple                 |
+| -------------- | ------------------ | ----------------------- |
+| `JWT_SECRET`   | Clé secrète JWT    | `your-256-bit-secret`   |
+| `FRONTEND_URL` | URL du frontend    | `http://localhost:3000` |
+| `DB_PASSWORD`  | Mot de passe MySQL | `mysecretpassword`      |
 
 ## 🛠️ Dépannage
 
-| Problème | Solution |
-|----------|----------|
-| `Unauthorized` admin | Vérifier JWT + CSRF cookies |
-| `{"product": null}` stats | Lancer `pnpm run seed` |
-| En-têtes CSP absents | Vérifier ordre middlewares |
-| Violations non stockées | Vérifier connexion MySQL |
+| Problème                  | Solution                    |
+| ------------------------- | --------------------------- |
+| `Unauthorized` admin      | Vérifier JWT + CSRF cookies |
+| `{"product": null}` stats | Lancer `pnpm run seed`      |
+| En-têtes CSP absents      | Vérifier ordre middlewares  |
+| Violations non stockées   | Vérifier connexion MySQL    |
 
 ### Logs de débogage
 
@@ -219,7 +221,7 @@ tail -f app.log | grep "CSP"
 ## 📋 Checklist de validation
 
 - [ ] `./test-csp.sh` : tous les tests passent
-- [ ] `test-csp.html` : violations générées et stockées  
+- [ ] `test-csp.html` : violations générées et stockées
 - [ ] CSP Evaluator : note A/A-
 - [ ] Admin protégé par auth
 - [ ] Stats publiques accessibles
@@ -228,7 +230,7 @@ tail -f app.log | grep "CSP"
 ## 📡 URLs importantes
 
 - **Statistiques** : http://localhost:5000/products/stats
-- **Admin CSP** : http://localhost:5000/admin/csp-reports  
+- **Admin CSP** : http://localhost:5000/admin/csp-reports
 - **Validation** : https://csp-evaluator.withgoogle.com
 
 ---

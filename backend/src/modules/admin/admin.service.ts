@@ -90,18 +90,24 @@ export async function getCSPStats() {
       today: reports.filter((r) => new Date(r.createdAt!) >= today).length,
       thisWeek: reports.filter((r) => new Date(r.createdAt!) >= thisWeek)
         .length,
-      byDirective: reports.reduce((acc, report) => {
-        const directive =
-          report.reportData?.["csp-report"]?.["violated-directive"] ||
-          "unknown";
-        acc[directive] = (acc[directive] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>),
-      byDay: reports.reduce((acc, report) => {
-        const day = new Date(report.createdAt!).toISOString().split("T")[0];
-        acc[day] = (acc[day] || 0) + 1;
-        return acc;
-      }, {} as Record<string, number>),
+      byDirective: reports.reduce(
+        (acc, report) => {
+          const directive =
+            report.reportData?.["csp-report"]?.["violated-directive"] ||
+            "unknown";
+          acc[directive] = (acc[directive] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>
+      ),
+      byDay: reports.reduce(
+        (acc, report) => {
+          const day = new Date(report.createdAt!).toISOString().split("T")[0];
+          acc[day] = (acc[day] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>
+      ),
     };
 
     return stats;

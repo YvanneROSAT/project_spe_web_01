@@ -42,5 +42,3 @@ express()
     );
     logger.info(`🛡️ CSP configuré avec reporting sur: /csp-report`);
   });
-
-

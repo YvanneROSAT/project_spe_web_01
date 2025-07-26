@@ -1,7 +1,7 @@
 # 1️⃣ Test statistiques publiques (sans CSP)
 
 ```sh
-# Test 
+# Test
 curl http://localhost:5000/products/stats
 
 # je vérifie les en-têtes et (doit PAS avoir Content-Security-Policy)

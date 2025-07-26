@@ -7,17 +7,16 @@ import { login, logout, refresh, register } from "./auth.controller";
 
 const limiter = rateLimit({ limit: 10, windowMs: 60 * 1000 });
 
-const router: Router = Router()
+const router: Router = Router();
 
-router.post("/login", validateRequest({ body: loginSchema }), limiter, login)
+router.post("/login", validateRequest({ body: loginSchema }), limiter, login);
 router.post(
   "/register",
   limiter,
   validateRequest({ body: registerSchema }),
   register
-)
-router.delete("/logout", requireAuth, logout)
+);
+router.delete("/logout", requireAuth, logout);
 router.post("/refresh", refresh);
 
-
-export default router
+export default router;

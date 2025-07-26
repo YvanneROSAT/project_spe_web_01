@@ -2,10 +2,13 @@ import crypto from "crypto";
 import { NextFunction, Request, Response } from "express";
 import helmet from "helmet";
 
-
 // Génération de nonce pour les scripts inline
-export function generateCSPNonce(req: Request, res: Response, next: NextFunction) {
-  res.locals.nonce = crypto.randomBytes(16).toString('base64');
+export function generateCSPNonce(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  res.locals.nonce = crypto.randomBytes(16).toString("base64");
   next();
 }
 
@@ -18,29 +21,26 @@ export function cspMiddleware() {
         scriptSrc: [
           "'self'",
           process.env.FRONTEND_URL,
-          (req, res) => `'nonce-${(res as Response).locals.nonce}'`
+          (req, res) => `'nonce-${(res as Response).locals.nonce}'`,
         ],
         styleSrc: [
           "'self'",
           "'unsafe-inline'", // Pour Bootstrap
           process.env.FRONTEND_URL,
           "https://cdn.jsdelivr.net", // CDN Bootstrap
-          "https://fonts.googleapis.com"
+          "https://fonts.googleapis.com",
         ],
         imgSrc: [
           "'self'",
           "data:",
           process.env.FRONTEND_URL,
-          `http://localhost:${process.env.PORT}`
+          `http://localhost:${process.env.PORT}`,
         ],
-        connectSrc: [
-          "'self'",
-          `http://localhost:${process.env.PORT}`
-        ],
+        connectSrc: ["'self'", `http://localhost:${process.env.PORT}`],
         fontSrc: [
           "'self'",
           "https://fonts.gstatic.com",
-          "https://fonts.googleapis.com"
+          "https://fonts.googleapis.com",
         ],
         objectSrc: ["'none'"],
         mediaSrc: ["'self'"],
@@ -60,7 +60,7 @@ export function cspMiddleware() {
     hsts: {
       maxAge: 31536000,
       includeSubDomains: true,
-      preload: true
+      preload: true,
     },
   });
 }
@@ -71,4 +71,4 @@ export function cspForPublicStats() {
     contentSecurityPolicy: false, // Désactiver CSP pour les stats publiques
     crossOriginEmbedderPolicy: false,
   });
-} 
+}

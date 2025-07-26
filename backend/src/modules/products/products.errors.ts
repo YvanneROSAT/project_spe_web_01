@@ -1,7 +1,10 @@
 import { AppError } from "@/app-error";
 
 class ProductError extends AppError {
-  constructor(code: string, public status: number) {
+  constructor(
+    code: string,
+    public status: number
+  ) {
     super(code, status);
 
     this.prefix = "product";

@@ -81,7 +81,7 @@ export async function logout(req: Request, res: Response) {
   if (token) {
     await blacklistAccessToken(token);
   }
-  
+
   res.clearCookie(REFRESH_TOKEN_COOKIE_NAME).send();
 }
 
