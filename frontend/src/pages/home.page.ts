@@ -1,5 +1,5 @@
 import { logout } from "../api";
-import { clearAuthStorage, getUserFromStorage } from "../auth";
+import { clearAuthStorage, getLocalUser } from "../auth";
 import type { Page } from "../types";
 
 export default {
@@ -11,6 +11,7 @@ export default {
       <a href="/add-product" id="addProductLink" class="btn btn-success  m-2">Ajouter un produit</a>
       <a href="/products" class="btn btn-info m-2">Voir les produits</a>
       <a href="/stats" class="btn btn-warning m-2">Statistiques</a>
+      <a href="/cart" id="cartLink" class="btn btn-primary m-2">Panier</a>
     </div>
   `,
   onLoad: function () {
@@ -19,13 +20,15 @@ export default {
     const loginLink = document.getElementById("loginLink");
     const registerLink = document.getElementById("registerLink");
     const addProductLink = document.getElementById("addProductLink");
+    const cartLink = document.getElementById("cartLink");
 
     if (
       !linkContainer ||
       !welcomeMessage ||
       !loginLink ||
       !registerLink ||
-      !addProductLink
+      !addProductLink ||
+      !cartLink
     ) {
       return;
     }
@@ -38,7 +41,7 @@ export default {
       window.location.href = "/";
     }
 
-    const user = getUserFromStorage();
+    const user = getLocalUser();
     if (user) {
       loginLink.remove();
       registerLink.remove();
@@ -52,6 +55,7 @@ export default {
       linkContainer.appendChild(logoutButton);
     } else {
       addProductLink.remove();
+      cartLink.remove();
     }
   },
 } satisfies Page;

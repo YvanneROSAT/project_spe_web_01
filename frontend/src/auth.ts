@@ -1,14 +1,10 @@
-import type { User } from "common";
+import { userSchema, type User } from "common";
 import { jwtDecode } from "jwt-decode";
 import { getRefreshedAccessToken } from "./api";
+import { getFromLocalStorage } from "./local-storage";
 
-export function getUserFromStorage(): User | null {
-  const str = localStorage.getItem("user");
-  if (!str) {
-    return null;
-  }
-
-  return JSON.parse(str);
+export function getLocalUser(): User | null {
+  return getFromLocalStorage("user", userSchema);
 }
 
 export function getAccessTokenFromStorage(): {

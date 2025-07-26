@@ -1,4 +1,5 @@
 import addProductPage from "./pages/add-product.page";
+import cartRoute from "./pages/cart.page";
 import homeRoute from "./pages/home.page";
 import loginRoute from "./pages/login.page";
 import productRoute from "./pages/product.page";
@@ -13,6 +14,7 @@ const routes: Record<string, Page> = {
   "/": homeRoute,
   "/login": loginRoute,
   "/register": registerRoute,
+  "/cart": cartRoute,
   "/product": productRoute,
   "/products": productsRoute,
   "/add-product": addProductPage,
