@@ -1,134 +1,23 @@
-import { InternalServerError } from "@/app-error";
-import {
-  FAKE_PASSWORD_HASH,
-  REFRESH_TOKEN_COOKIE_NAME,
-  REFRESH_TOKEN_COOKIE_OPTIONS,
-} from "@/config";
 import { requireAuth } from "@/middlewares/requireAuth";
 import { validateRequest } from "@/middlewares/validateRequest";
-import {
-  loginSchema,
-  registerSchema,
-  type AuthRefreshResponse,
-  type LoginResponse,
-} from "common";
+import { loginSchema, registerSchema } from "common";
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
-import {
-  ForbiddenError,
-  InvalidCredentialsError,
-  TokenExpiredError,
-} from "./auth.errors";
-import { createUser, getUserByEmail, getUserById } from "./auth.service";
-import {
-  blacklistAccessToken,
-  generateAccessToken,
-  generateRefreshToken,
-  getAccessTokenFromRequest,
-  getRefreshTokenFromRequest,
-  verifyRefreshToken,
-} from "./jwt";
-import { comparePassword, getIsPasswordSafe, hashPassword } from "./password";
+import { login, logout, refresh, register } from "./auth.controller";
 
-export default Router()
-  .post(
-    "/login",
-    validateRequest({ body: loginSchema }),
-    rateLimit({ limit: 10, windowMs: 60 * 1000 }),
-    async function (req, res) {
-      const user = await getUserByEmail(req.body.email);
-      // an attacker could guess if a user is registered based on the response time
-      // so we'll compare passwords even if the user isn't found to avoid timing attacks
-      const passwordMatch = await comparePassword(
-        req.body.password,
-        user?.passwordHash ?? FAKE_PASSWORD_HASH
-      );
-      // crucial check of `user` existence to avoid login using "fakepassword"
-      if (!user || !passwordMatch) {
-        throw new InvalidCredentialsError();
-      }
+const limiter = rateLimit({ limit: 10, windowMs: 60 * 1000 });
 
-      const accessToken = generateAccessToken(user.userId);
-      const refreshToken = generateRefreshToken(user.userId);
+const router: Router = Router()
 
-      res
-        .cookie(
-          REFRESH_TOKEN_COOKIE_NAME,
-          refreshToken,
-          REFRESH_TOKEN_COOKIE_OPTIONS
-        )
-        .json({
-          accessToken,
-          user: {
-            id: user.userId,
-            email: user.email,
-            firstName: user.firstName,
-            lastName: user.lastName,
-          },
-        } satisfies LoginResponse);
-    }
-  )
-  .post(
-    "/register",
-    rateLimit({ limit: 10, windowMs: 60 * 1000 }),
-    validateRequest({ body: registerSchema }),
-    async function (req, res) {
-      const user = await getUserByEmail(req.body.email);
-      if (user) {
-        throw new InvalidCredentialsError();
-      }
+router.post("/login", validateRequest({ body: loginSchema }), limiter, login)
+router.post(
+  "/register",
+  limiter,
+  validateRequest({ body: registerSchema }),
+  register
+)
+router.delete("/logout", requireAuth, logout)
+router.post("/refresh", refresh);
 
-      const isPasswordSafe = await getIsPasswordSafe(req.body.password);
-      if (!isPasswordSafe) {
-        throw new InvalidCredentialsError();
-      }
 
-      const passwordHash = await hashPassword(req.body.password);
-      const success = await createUser(req.body.email, passwordHash, req.body);
-      if (!success) {
-        throw new InternalServerError();
-      }
-
-      return res.sendStatus(200);
-    }
-  )
-  .delete("/logout", requireAuth, async function (req, res) {
-    const accessToken = getAccessTokenFromRequest(req);
-    if (accessToken) {
-      await blacklistAccessToken(accessToken);
-    }
-
-    res.clearCookie(REFRESH_TOKEN_COOKIE_NAME).send();
-  })
-  .post("/refresh", async function (req, res) {
-    const accessToken = getAccessTokenFromRequest(req);
-    if (accessToken) {
-      await blacklistAccessToken(accessToken);
-    }
-
-    const refreshToken = getRefreshTokenFromRequest(req);
-    if (!refreshToken) {
-      throw new ForbiddenError();
-    }
-
-    const payload = verifyRefreshToken(refreshToken);
-    if (!payload) {
-      throw new TokenExpiredError();
-    }
-
-    const user = await getUserById(payload.sub);
-    if (!user) {
-      throw new InvalidCredentialsError();
-    }
-
-    const newAccessToken = generateAccessToken(payload.sub);
-    res.json({
-      accessToken: newAccessToken,
-      user: {
-        id: user.userId,
-        email: user.email,
-        firstName: user.firstName,
-        lastName: user.lastName,
-      },
-    } satisfies AuthRefreshResponse);
-  });
+export default router

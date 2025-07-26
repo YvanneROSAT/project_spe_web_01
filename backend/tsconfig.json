@@ -8,8 +8,11 @@
     "skipLibCheck": true,
     "outDir": "dist/",
     "baseUrl": ".",
+    "composite": true,
     "paths": {
       "@/*": ["src/*"]
     }
-  }
+  },
+  "include": ["src"],
+  "exclude": ["dist", "node_modules", "**/__tests__"]
 }

@@ -6,8 +6,8 @@ import { cspMiddleware, generateCSPNonce } from "@/middlewares/csp";
 import { errorHandler } from "@/middlewares/errorHandler";
 import adminRouter from "@/modules/admin/admin.router";
 import authRouter from "@/modules/auth/auth.router";
+import categoriesRouter from "@/modules/categories/categories.router";
 import productsRouter from "@/modules/products/products.router";
-import categoriesRouter from "@/modules/categories/categories.router"
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import express from "express";
@@ -43,13 +43,4 @@ express()
     logger.info(`🛡️ CSP configuré avec reporting sur: /csp-report`);
   });
 
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace Express {
-    interface Request {
-      user: Readonly<{
-        userId: string;
-      }> | null;
-    }
-  }
-}
+
