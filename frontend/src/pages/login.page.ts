@@ -1,5 +1,6 @@
 import { loginSchema } from "common";
 import { login } from "../api";
+import { setAuthStorage } from "../auth";
 import { extractFormData } from "../helpers";
 import type { Page } from "../types";
 
@@ -50,10 +51,9 @@ export default {
       }
 
       try {
-        const success = await login(result.data);
-        if (success) {
-          localStorage.setItem("accessToken", success.accessToken);
-          localStorage.setItem("user", JSON.stringify(success.user));
+        const res = await login(result.data);
+        if (res) {
+          setAuthStorage(res.accessToken, res.user);
           window.location.href = "/";
         }
       } catch (err) {

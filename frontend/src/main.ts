@@ -1,5 +1,3 @@
-import axios from "axios";
-import { getAccessToken } from "./auth";
 import addProductPage from "./pages/add-product.page";
 import homeRoute from "./pages/home.page";
 import loginRoute from "./pages/login.page";
@@ -8,16 +6,6 @@ import productsRoute from "./pages/products.page";
 import registerRoute from "./pages/register.page";
 import "./style.css";
 import type { Page } from "./types";
-
-// todo: refresh access token on expired
-axios.interceptors.request.use(function (config) {
-  const accessToken = getAccessToken();
-  if (accessToken) {
-    config.headers.Authorization = `Bearer ${accessToken}`;
-  }
-
-  return config;
-});
 
 const app = document.querySelector<HTMLDivElement>("#app");
 

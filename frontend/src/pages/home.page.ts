@@ -1,5 +1,5 @@
 import { logout } from "../api";
-import { getUser } from "../auth";
+import { clearAuthStorage, getUserFromStorage } from "../auth";
 import type { Page } from "../types";
 
 export default {
@@ -33,13 +33,12 @@ export default {
     async function handleLogout() {
       await logout();
 
-      localStorage.removeItem("user");
-      localStorage.removeItem("accessToken");
+      clearAuthStorage();
 
       window.location.href = "/";
     }
 
-    const user = getUser();
+    const user = getUserFromStorage();
     if (user) {
       loginLink.remove();
       registerLink.remove();

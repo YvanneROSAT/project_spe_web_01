@@ -22,7 +22,7 @@ export const DB_CONNECTION_CONFIG = {
 export const REFRESH_TOKEN_COOKIE_NAME = "refresh_token";
 export const REFRESH_TOKEN_COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env.NODE_ENV !== "dev",
+  secure: true,
   sameSite: "strict",
   maxAge: 7 * 24 * 60 * 60 * 1000, // days
 } as const satisfies CookieOptions;

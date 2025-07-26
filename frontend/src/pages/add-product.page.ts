@@ -71,9 +71,7 @@ export default {
       }
 
       const rawData = extractFormData(form);
-      console.log(rawData)
       const result = validateCreateProductData(rawData);
-
 
       if (!result.success || !result.data) {
         alert(result.message);

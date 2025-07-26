@@ -1,5 +1,7 @@
 import axios from "axios";
 import {
+  type AuthRefreshResponse,
+  authRefreshResponseSchema,
   categoriesResponseSchema,
   type Category,
   type CreateProductInput,
@@ -9,19 +11,33 @@ import {
   type LoginResponse,
   loginResponseSchema,
   type Product,
-  productResponseSchema,
   type ProductsResponse,
   productsResponseSchema,
   type RegisterInput,
+  singleProductResponseSchema,
 } from "common";
+import { refreshAuth } from "./auth";
 import { BACKEND_URL } from "./config";
+
+const authorizedAxios = axios.create();
+
+authorizedAxios.interceptors.request.use(async function (config) {
+  config.withCredentials = true;
+
+  const accessToken = await refreshAuth();
+  if (accessToken) {
+    config.headers.Authorization = `Bearer ${accessToken}`;
+  }
+
+  return config;
+});
 
 export async function getProducts(
   search: string | null,
   page: number = 0
 ): Promise<ProductsResponse> {
   try {
-    const res = await axios.get(BACKEND_URL + "/products", {
+    const res = await authorizedAxios.get(BACKEND_URL + "/products", {
       params: { search, page },
     });
 
@@ -38,9 +54,9 @@ export async function getProducts(
 
 export async function getProduct(id: string): Promise<Product | null> {
   try {
-    const res = await axios.get(BACKEND_URL + "/products/" + id);
+    const res = await authorizedAxios.get(BACKEND_URL + "/products/" + id);
 
-    return productResponseSchema.parse(res.data).product;
+    return singleProductResponseSchema.parse(res.data).product;
   } catch (err) {
     console.error(err);
 
@@ -52,7 +68,10 @@ export async function createProduct(
   input: CreateProductInput
 ): Promise<CreateProductResponse | null> {
   try {
-    const res = await axios.post(BACKEND_URL + "/products/new", input);
+    const res = await authorizedAxios.post(
+      BACKEND_URL + "/products/new",
+      input
+    );
 
     return createProductResponseSchema.parse(res.data);
   } catch (err) {
@@ -64,7 +83,7 @@ export async function createProduct(
 
 export async function getCategories(): Promise<Category[]> {
   try {
-    const res = await axios.get(BACKEND_URL + "/categories");
+    const res = await authorizedAxios.get(BACKEND_URL + "/categories");
 
     return categoriesResponseSchema.parse(res.data).categories;
   } catch (err) {
@@ -75,7 +94,7 @@ export async function getCategories(): Promise<Category[]> {
 }
 
 export async function login(input: LoginInput): Promise<LoginResponse | null> {
-  const res = await axios.post(BACKEND_URL + "/auth/login", input);
+  const res = await authorizedAxios.post(BACKEND_URL + "/auth/login", input);
 
   switch (res.status) {
     case 200: {
@@ -97,7 +116,7 @@ export async function login(input: LoginInput): Promise<LoginResponse | null> {
 }
 
 export async function register(input: RegisterInput): Promise<boolean> {
-  const res = await axios.post(BACKEND_URL + "/auth/register", input);
+  const res = await authorizedAxios.post(BACKEND_URL + "/auth/register", input);
 
   switch (res.status) {
     case 200:
@@ -113,7 +132,27 @@ export async function register(input: RegisterInput): Promise<boolean> {
 }
 
 export async function logout(): Promise<boolean> {
-  const res = await axios.delete(BACKEND_URL + "/auth/logout");
+  try {
+    const res = await authorizedAxios.delete(BACKEND_URL + "/auth/logout");
 
-  return res.status === 200;
+    return res.status === 200;
+  } catch (err) {
+    console.error(err);
+
+    return false;
+  }
+}
+
+export async function getRefreshedAccessToken(): Promise<AuthRefreshResponse | null> {
+  try {
+    const res = await axios.post(BACKEND_URL + "/auth/refresh", null, {
+      withCredentials: true,
+    });
+
+    return authRefreshResponseSchema.parse(res.data);
+  } catch (err) {
+    console.error(err);
+
+    return null;
+  }
 }

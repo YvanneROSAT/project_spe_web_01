@@ -3,6 +3,7 @@ import { relations } from "drizzle-orm";
 import {
   boolean,
   decimal,
+  index,
   int,
   json,
   mysqlTable,
@@ -18,18 +19,24 @@ export const categoriesTable = mysqlTable("categories", {
   label: varchar("label", { length: 50 }).notNull(),
 });
 
-export const usersTable = mysqlTable("users", {
-  userId: varchar("Id_users", { length: 36 })
-    .primaryKey()
-    .$defaultFn(() => createId()),
-  lastName: varchar("last_name", { length: 50 }).notNull(),
-  firstName: varchar("first_name", { length: 50 }).notNull(),
-  email: varchar("email", { length: 320 }).unique().notNull(),
-  passwordHash: varchar("password_hash", { length: 255 }).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  lastLogin: timestamp("last_login"),
-  isActive: boolean("is_active").default(true).notNull(),
-});
+export const usersTable = mysqlTable(
+  "users",
+  {
+    userId: varchar("Id_users", { length: 36 })
+      .primaryKey()
+      .$defaultFn(() => createId()),
+    lastName: varchar("last_name", { length: 50 }).notNull(),
+    firstName: varchar("first_name", { length: 50 }).notNull(),
+    email: varchar("email", { length: 320 }).unique().notNull(),
+    passwordHash: varchar("password_hash", { length: 255 }).notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    lastLogin: timestamp("last_login"),
+    isActive: boolean("is_active").default(true).notNull(),
+  },
+  (table) => ({
+    emailIdx: index("email_idx").on(table.email),
+  })
+);
 
 export const productsTable = mysqlTable("products", {
   productId: varchar("Id_Products", { length: 36 })

@@ -6,13 +6,12 @@ import {
 } from "@/config";
 import { requireAuth } from "@/middlewares/requireAuth";
 import { validateRequest } from "@/middlewares/validateRequest";
-import { createUser, getUserByEmail } from "@/modules/auth/auth.service";
 import {
-  comparePassword,
-  getIsPasswordSafe,
-  hashPassword,
-} from "@/modules/auth/password";
-import { LoginResponse, loginSchema, registerSchema } from "common";
+  loginSchema,
+  registerSchema,
+  type AuthRefreshResponse,
+  type LoginResponse,
+} from "common";
 import { Router } from "express";
 import rateLimit from "express-rate-limit";
 import {
@@ -20,6 +19,7 @@ import {
   InvalidCredentialsError,
   TokenExpiredError,
 } from "./auth.errors";
+import { createUser, getUserByEmail, getUserById } from "./auth.service";
 import {
   blacklistAccessToken,
   generateAccessToken,
@@ -28,6 +28,7 @@ import {
   getRefreshTokenFromRequest,
   verifyRefreshToken,
 } from "./jwt";
+import { comparePassword, getIsPasswordSafe, hashPassword } from "./password";
 
 export default Router()
   .post(
@@ -115,6 +116,19 @@ export default Router()
       throw new TokenExpiredError();
     }
 
+    const user = await getUserById(payload.sub);
+    if (!user) {
+      throw new InvalidCredentialsError();
+    }
+
     const newAccessToken = generateAccessToken(payload.sub);
-    res.json({ newAccessToken });
+    res.json({
+      accessToken: newAccessToken,
+      user: {
+        id: user.userId,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+      },
+    } satisfies AuthRefreshResponse);
   });

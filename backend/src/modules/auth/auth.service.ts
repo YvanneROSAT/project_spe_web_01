@@ -12,6 +12,15 @@ export async function getUserByEmail(email: string): Promise<User | null> {
   return res.length === 1 ? res[0] : null;
 }
 
+export async function getUserById(userId: string): Promise<User | null> {
+  const res = await db
+    .select()
+    .from(usersTable)
+    .where(eq(usersTable.userId, userId));
+
+  return res.length === 1 ? res[0] : null;
+}
+
 export async function createUser(
   email: string,
   passwordHash: string,
