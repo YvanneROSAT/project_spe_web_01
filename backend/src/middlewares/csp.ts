@@ -1,6 +1,7 @@
-import { Request, Response, NextFunction } from "express";
-import helmet from "helmet";
 import crypto from "crypto";
+import { NextFunction, Request, Response } from "express";
+import helmet from "helmet";
+
 
 // Génération de nonce pour les scripts inline
 export function generateCSPNonce(req: Request, res: Response, next: NextFunction) {
@@ -17,7 +18,7 @@ export function cspMiddleware() {
         scriptSrc: [
           "'self'",
           process.env.FRONTEND_URL,
-          (req, res) => `'nonce-${res.locals.nonce}'`
+          (req, res) => `'nonce-${(res as Response).locals.nonce}'`
         ],
         styleSrc: [
           "'self'",
@@ -51,16 +52,16 @@ export function cspMiddleware() {
         formAction: ["'self'"],
         frameAncestors: ["'none'"],
         upgradeInsecureRequests: [],
+        reportUri: ["/csp-report"],
       },
       reportOnly: false,
-      reportUri: '/csp-report',
     },
     crossOriginEmbedderPolicy: false,
     hsts: {
       maxAge: 31536000,
       includeSubDomains: true,
       preload: true
-    }
+    },
   });
 }
 
