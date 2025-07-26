@@ -5,9 +5,9 @@ import { Router } from "express";
 import { cspReportSchema, cspReportsQuerySchema } from "./admin.schemas";
 import { getCSPReports, getCSPStats, saveCSPReport } from "./admin.service";
 
-export default Router()
+const router:Router =  Router()
   // les rapports CSP (accessible à tous)
-  .post(
+  router.post(
     "/csp-report",
     validateRequest({ body: cspReportSchema }),
     async (req, res) => {
@@ -34,7 +34,7 @@ export default Router()
   )
 
   // rapports Admin CSP
-  .get(
+  router.get(
     "/admin/csp-reports",
     requireAuth,
     validateRequest({ query: cspReportsQuerySchema }),
@@ -50,7 +50,7 @@ export default Router()
   )
 
   // Statistiques des violations CSP
-  .get("/admin/csp-stats", requireAuth, async (req, res) => {
+  router.get("/admin/csp-stats", requireAuth, async (req, res) => {
     try {
       const stats = await getCSPStats();
       res.json(stats);
@@ -59,3 +59,5 @@ export default Router()
       res.status(500).json({ error: "Erreur interne du serveur" });
     }
   });
+
+  export default router
