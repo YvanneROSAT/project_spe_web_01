@@ -2,6 +2,8 @@ import "./style.scss";
 
 import addProductPage from "./pages/add-product.page";
 import cartRoute from "./pages/cart.page";
+import cspStatsRoute from "./pages/csp-stats.page";
+import cspTestRoute from "./pages/csp-test.page";
 import editProductPage from "./pages/edit-product.page";
 import homeRoute from "./pages/home.page";
 import loginRoute from "./pages/login.page";
@@ -21,6 +23,8 @@ const routes: Record<string, Page> = {
   "/products": productsRoute,
   "/add-product": addProductPage,
   "/edit-product": editProductPage,
+  "/csp-stats": cspStatsRoute,
+  "/csp-test": cspTestRoute,
   404: { html: `<h1>404</h1><p>Page not found.</p>` },
 };
 let currentPage: Page | null = null;
