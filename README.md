@@ -4,9 +4,9 @@
 Application e-commerce complète avec authentification, gestion de produits, panier et système de sécurité CSP avancé.
 
 ## Équipe
-- **Yvanne** - Développement Backend & Sécurité
+- **Lucien** - Développement Backend & Sécurité
 - **Dorian** - Développement Frontend & UX
-- **Lucien** - Architecture & Base de données
+- **Yvanne** - Architecture & Base de données
 
 ---
 
