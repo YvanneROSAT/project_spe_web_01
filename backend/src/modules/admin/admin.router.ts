@@ -27,7 +27,7 @@ router.post("/csp-report", async (req, res) => {
     res.status(204).send();
   } catch (error) {
     logger.error("Erreur lors du stockage du rapport CSP", error);
-    res.status(500).json({ error: "Erreur interne du serveur" });
+    throw error;
   }
 });
 
@@ -42,7 +42,7 @@ router.get("/admin/csp-reports", requireAuth, async (req, res) => {
     res.json(result);
   } catch (error) {
     logger.error("Erreur lors de la récupération des rapports CSP", error);
-    res.status(500).json({ error: "Erreur interne du serveur" });
+    throw error;
   }
 });
 
@@ -53,7 +53,7 @@ router.get("/admin/csp-stats", requireAuth, async (req, res) => {
     res.json(stats);
   } catch (error) {
     logger.error("Erreur lors du calcul des statistiques CSP", error);
-    res.status(500).json({ error: "Erreur interne du serveur" });
+    throw error;
   }
 });
 

@@ -21,7 +21,13 @@ export async function validateRequest<Schemas extends SchemaMap>(
     const schema = schemas[key];
     const data = await schema?.parseAsync(req[key]);
 
-    Object.defineProperty(result, key, Object.freeze(data));
+    if (data) {
+      Object.defineProperty(result, key, {
+        value: Object.freeze(data),
+        configurable: false,
+        writable: false,
+      });
+    }
   }
 
   return result;
