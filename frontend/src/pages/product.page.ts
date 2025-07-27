@@ -1,14 +1,15 @@
 import { getProduct } from "@/api/products";
 import { getLocalUser } from "@/auth";
 import { addToCart, getCart } from "@/cart";
+import { html } from "@/helpers";
 import type { Page } from "@/types";
 
 export default {
-  html: `
-  <div id="productContainer">
-    <h1>Chargement...</h1>
-  </div>
-`,
+  html: html`
+    <div id="productContainer">
+      <h1>Chargement...</h1>
+    </div>
+  `,
   onLoad: async function () {
     const cart = getCart();
 
@@ -20,21 +21,29 @@ export default {
     const params = new URLSearchParams(window.location.search);
     const id = params.get("id");
     if (!id) {
-      productContainer.innerHTML = `<p>Produit introuvable.</p>`;
+      productContainer.innerHTML = html`<p>Produit introuvable.</p>`;
       return;
     }
 
     const product = await getProduct(id);
     if (!product) {
-      productContainer.innerHTML = `<p>Produit introuvable.</p>`;
+      productContainer.innerHTML = html`<p>Produit introuvable.</p>`;
       return;
     }
 
-    productContainer.innerHTML = `
+    productContainer.innerHTML = html`
       <h2>${product.name}</h2>
       <p>${product.description}</p>
-      <p><strong>Prix : <span>${product.price}</span> €</strong></p>
-      <button type="button" class="btn btn-secondary mt-3" onclick="history.back()">Retour</button>
+      <p>
+        <strong>Prix : <span>${product.price}</span> €</strong>
+      </p>
+      <button
+        type="button"
+        class="btn btn-secondary mt-3"
+        onclick="history.back()"
+      >
+        Retour
+      </button>
     `;
 
     const addToCartButton = document.createElement("button");
