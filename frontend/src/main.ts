@@ -2,6 +2,7 @@ import "./style.scss";
 
 import addProductPage from "./pages/add-product.page";
 import cartRoute from "./pages/cart.page";
+import editProductPage from "./pages/edit-product.page";
 import homeRoute from "./pages/home.page";
 import loginRoute from "./pages/login.page";
 import productRoute from "./pages/product.page";
@@ -19,6 +20,7 @@ const routes: Record<string, Page> = {
   "/product": productRoute,
   "/products": productsRoute,
   "/add-product": addProductPage,
+  "/edit-product": editProductPage,
   404: { html: `<h1>404</h1><p>Page not found.</p>` },
 };
 let currentPage: Page | null = null;

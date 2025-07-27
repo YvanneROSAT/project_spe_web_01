@@ -4,6 +4,7 @@ import {
   type Product,
   type ProductsResponse,
   productsResponseSchema,
+  type SetProductInput,
   singleProductResponseSchema,
 } from "common";
 import { apiAuthorizedRequester, parseResponse } from "./axios";
@@ -12,44 +13,34 @@ export async function getProducts(
   search: string | null,
   page: number = 0
 ): Promise<ProductsResponse> {
-  try {
-    const res = await apiAuthorizedRequester.get("/products", {
-      params: { search, page },
-    });
+  const res = await apiAuthorizedRequester.get("/products", {
+    params: { search, page },
+  });
 
-    return productsResponseSchema.parse(res.data);
-  } catch (err) {
-    console.error(err);
-
-    return {
-      products: [],
-      pageSize: 0,
-    };
-  }
+  return (
+    parseResponse(res, productsResponseSchema) ?? { products: [], pageSize: -1 }
+  );
 }
 
 export async function getProduct(id: string): Promise<Product | null> {
-  try {
-    const res = await apiAuthorizedRequester.get("/products/" + id);
+  const res = await apiAuthorizedRequester.get("/products/" + id);
 
-    return parseResponse(res, singleProductResponseSchema)?.product ?? null;
-  } catch (err) {
-    console.error(err);
-
-    return null;
-  }
+  return parseResponse(res, singleProductResponseSchema)?.product ?? null;
 }
 
 export async function createProduct(
   input: CreateProductInput
 ): Promise<string | null> {
-  try {
-    const res = await apiAuthorizedRequester.post("/products/new", input);
+  const res = await apiAuthorizedRequester.post("/products/new", input);
 
-    return parseResponse(res, createProductResponseSchema)?.id ?? null;
-  } catch (err) {
-    console.error(err);
+  return parseResponse(res, createProductResponseSchema)?.id ?? null;
+}
 
-    return null;
-  }
+export async function updateProduct(
+  productId: string,
+  input: SetProductInput
+): Promise<boolean> {
+  const res = await apiAuthorizedRequester.put(`/products/${productId}`, input);
+
+  return res.statusText === "OK";
 }

@@ -39,16 +39,23 @@ export default {
       </p>
       <button
         type="button"
-        class="btn btn-secondary mt-3"
+        class="btn btn-secondary m-2"
         onclick="history.back()"
       >
         Retour
+      </button>
+      <button
+        type="button"
+        class="btn btn-success m-2"
+        onclick="window.location.href = 'edit-product?id=${product.id}'"
+      >
+        Modifier
       </button>
     `;
 
     const addToCartButton = document.createElement("button");
     addToCartButton.textContent = "Ajouter au panier";
-    addToCartButton.classList.add("btn", "btn-primary", "mt-3");
+    addToCartButton.classList.add("btn", "btn-primary", "m-2");
     addToCartButton.addEventListener("click", function () {
       addToCart(product);
     });
