@@ -52,7 +52,7 @@ export function cspMiddleware() {
         formAction: ["'self'"],
         frameAncestors: ["'none'"],
         upgradeInsecureRequests: [],
-        reportUri: ["/csp-report"],
+        reportTo: ["/csp-report"],
       },
       reportOnly: false,
     },
