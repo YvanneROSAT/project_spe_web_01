@@ -53,6 +53,10 @@ export default {
       addToCart(product);
     });
 
+    if (!cart.some((p) => p.id === product.id)) {
+      productContainer.appendChild(addToCartButton);
+    }
+
     const editProductLink = document.createElement("a");
     editProductLink.href = `/edit-product?id=${product.id}`;
     editProductLink.textContent = "Modifier";
@@ -60,10 +64,6 @@ export default {
 
     if (getLocalUser()) {
       productContainer.appendChild(editProductLink);
-
-      if (!cart.some((p) => p.id === product.id)) {
-        productContainer.appendChild(addToCartButton);
-      }
     }
   },
 } satisfies Page;
