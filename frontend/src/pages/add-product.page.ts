@@ -79,9 +79,9 @@ export default {
         return;
       }
 
-      const data = await createProduct(result.data);
-      if (data) {
-        window.location.href = "/product?id=" + data.id;
+      const newProductId = await createProduct(result.data);
+      if (newProductId) {
+        window.location.href = "/product?id=" + newProductId;
       }
     }
 

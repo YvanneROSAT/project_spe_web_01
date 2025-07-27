@@ -50,15 +50,10 @@ export default {
         return;
       }
 
-      try {
-        const res = await login(result.data);
-        if (res) {
-          setAuthStorage(res.accessToken, res.user);
-          window.location.href = "/";
-        }
-      } catch (err) {
-        console.error(err);
-        alert("Une erreur est survenue");
+      const data = await login(result.data);
+      if (data) {
+        setAuthStorage(data.accessToken, data.user);
+        window.location.href = "/";
       }
     }
 

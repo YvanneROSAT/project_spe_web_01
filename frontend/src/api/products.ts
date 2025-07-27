@@ -1,13 +1,12 @@
 import {
   type CreateProductInput,
-  type CreateProductResponse,
   createProductResponseSchema,
   type Product,
   type ProductsResponse,
   productsResponseSchema,
   singleProductResponseSchema,
 } from "common";
-import { apiAuthorizedRequester } from "./axios-helper";
+import { apiAuthorizedRequester, parseResponse } from "./axios";
 
 export async function getProducts(
   search: string | null,
@@ -33,7 +32,7 @@ export async function getProduct(id: string): Promise<Product | null> {
   try {
     const res = await apiAuthorizedRequester.get("/products/" + id);
 
-    return singleProductResponseSchema.parse(res.data).product;
+    return parseResponse(res, singleProductResponseSchema)?.product ?? null;
   } catch (err) {
     console.error(err);
 
@@ -43,11 +42,11 @@ export async function getProduct(id: string): Promise<Product | null> {
 
 export async function createProduct(
   input: CreateProductInput
-): Promise<CreateProductResponse | null> {
+): Promise<string | null> {
   try {
     const res = await apiAuthorizedRequester.post("/products/new", input);
 
-    return createProductResponseSchema.parse(res.data);
+    return parseResponse(res, createProductResponseSchema)?.id ?? null;
   } catch (err) {
     console.error(err);
 
