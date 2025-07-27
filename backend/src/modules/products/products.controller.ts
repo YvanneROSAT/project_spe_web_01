@@ -1,5 +1,6 @@
 import { removeUndefinedFromObject } from "@/helpers";
 import { validateRequest } from "@/middlewares/validateRequest";
+import { Controller } from "@/types";
 import {
   CreateProductResponse,
   createProductSchema,
@@ -21,75 +22,72 @@ import {
   updateProduct,
 } from "./products.service";
 
-export async function handleGetProducts(req: Request, res: Response) {
-  const { query } = await validateRequest(req, {
-    query: z.object({
-      search: z.string().optional(),
-      page: z.coerce.number().optional(),
-    }),
-  });
+export default {
+  handleGetProducts: async function (req: Request, res: Response) {
+    const { query } = await validateRequest(req, {
+      query: z.object({
+        search: z.string().optional(),
+        page: z.coerce.number().optional(),
+      }),
+    });
 
-  const products = await getProducts(query.search, query.page);
+    const products = await getProducts(query.search, query.page);
 
-  res.json({
-    products,
-    pageSize: PRODUCTS_PER_PAGE,
-  } satisfies ProductsResponse);
-}
+    res.json({
+      products,
+      pageSize: PRODUCTS_PER_PAGE,
+    } satisfies ProductsResponse);
+  },
+  handleCreateProduct: async function (req: Request, res: Response) {
+    const { body } = await validateRequest(req, {
+      body: createProductSchema,
+    });
 
-export async function handleCreateProduct(req: Request, res: Response) {
-  const { body } = await validateRequest(req, {
-    body: createProductSchema,
-  });
+    const productId = await createProduct(body);
 
-  const productId = await createProduct(body);
+    res.json({ id: productId } satisfies CreateProductResponse);
+  },
+  handleGetProductStats: async function (req: Request, res: Response) {
+    const stats = await getPublicStats();
 
-  res.json({ id: productId } satisfies CreateProductResponse);
-}
+    res.json(stats);
+  },
+  handleGetSingleProduct: async function (req: Request, res: Response) {
+    const { params } = await validateRequest(req, {
+      params: singleProductParamsSchema,
+    });
 
-export async function handleGetProductStats(req: Request, res: Response) {
-  const stats = await getPublicStats();
+    const product = await getProductById(params.productId);
+    if (!product) {
+      throw new ProductNotFoundError();
+    }
 
-  res.json(stats);
-}
+    res.json({ product } satisfies SingleProductResponse);
+  },
+  handleUpdateProduct: async function (req: Request, res: Response) {
+    const { params, body } = await validateRequest(req, {
+      params: singleProductParamsSchema,
+      body: setProductSchema,
+    });
 
-export async function handleGetSingleProduct(req: Request, res: Response) {
-  const { params } = await validateRequest(req, {
-    params: singleProductParamsSchema,
-  });
+    const fieldsToUpdate = removeUndefinedFromObject(body);
+    const success = await updateProduct(params.productId, fieldsToUpdate);
+    if (!success) {
+      throw new ProductNotFoundError();
+    }
 
-  const product = await getProductById(params.productId);
-  if (!product) {
-    throw new ProductNotFoundError();
-  }
+    res.send();
+  },
+  handleDeleteProduct: async function (req: Request, res: Response) {
+    const { params } = await validateRequest(req, {
+      params: singleProductParamsSchema,
+    });
 
-  res.json({ product } satisfies SingleProductResponse);
-}
+    const success = await deleteProduct(params.productId);
+    if (!success) {
+      throw new ProductNotFoundError();
+    }
 
-export async function handleUpdateProduct(req: Request, res: Response) {
-  const { params, body } = await validateRequest(req, {
-    params: singleProductParamsSchema,
-    body: setProductSchema,
-  });
-
-  const fieldsToUpdate = removeUndefinedFromObject(body);
-  const success = await updateProduct(params.productId, fieldsToUpdate);
-  if (!success) {
-    throw new ProductNotFoundError();
-  }
-
-  res.send();
-}
-
-export async function handleDeleteProduct(req: Request, res: Response) {
-  const { params } = await validateRequest(req, {
-    params: singleProductParamsSchema,
-  });
-
-  const success = await deleteProduct(params.productId);
-  if (!success) {
-    throw new ProductNotFoundError();
-  }
-
-  res.send();
-}
+    res.send();
+  },
+} satisfies Controller;

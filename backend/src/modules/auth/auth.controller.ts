@@ -6,6 +6,7 @@ import {
 } from "@/config";
 import { usersTable } from "@/db/schema";
 import { validateRequest } from "@/middlewares/validateRequest";
+import { Controller } from "@/types";
 import {
   loginSchema,
   registerSchema,
@@ -37,85 +38,84 @@ const formatUser = (user: typeof usersTable.$inferSelect): User => ({
   lastName: user.lastName,
 });
 
-export async function login(req: Request, res: Response) {
-  const { body } = await validateRequest(req, { body: loginSchema });
+export default {
+  handleLogin: async function (req: Request, res: Response) {
+    const { body } = await validateRequest(req, { body: loginSchema });
 
-  const user = await getUserByEmail(body.email);
-  const match = await comparePassword(
-    body.password,
-    user?.passwordHash ?? FAKE_PASSWORD_HASH
-  );
-  if (!user || !match) {
-    throw new InvalidCredentialsError();
-  }
+    const user = await getUserByEmail(body.email);
+    const match = await comparePassword(
+      body.password,
+      user?.passwordHash ?? FAKE_PASSWORD_HASH
+    );
+    if (!user || !match) {
+      throw new InvalidCredentialsError();
+    }
 
-  const accessToken = generateAccessToken(user.userId);
-  const refreshToken = generateRefreshToken(user.userId);
+    const accessToken = generateAccessToken(user.userId);
+    const refreshToken = generateRefreshToken(user.userId);
 
-  res
-    .cookie(
-      REFRESH_TOKEN_COOKIE_NAME,
-      refreshToken,
-      REFRESH_TOKEN_COOKIE_OPTIONS
-    )
-    .json({
+    res
+      .cookie(
+        REFRESH_TOKEN_COOKIE_NAME,
+        refreshToken,
+        REFRESH_TOKEN_COOKIE_OPTIONS
+      )
+      .json({
+        accessToken,
+        user: formatUser(user),
+      } satisfies LoginResponse);
+  },
+  handleRegister: async function (req: Request, res: Response) {
+    const { body } = await validateRequest(req, { body: registerSchema });
+
+    if (await getUserByEmail(body.email)) {
+      throw new InvalidCredentialsError();
+    }
+
+    if (!(await getIsPasswordSafe(body.password))) {
+      throw new InvalidCredentialsError();
+    }
+
+    const hash = await hashPassword(body.password);
+    if (!(await createUser(body.email, hash, req.body))) {
+      throw new InternalServerError();
+    }
+
+    res.sendStatus(200);
+  },
+  handleLogout: async function (req: Request, res: Response) {
+    const token = getAccessTokenFromRequest(req);
+    if (token) {
+      await blacklistAccessToken(token);
+    }
+
+    res.clearCookie(REFRESH_TOKEN_COOKIE_NAME).send();
+  },
+  handleRefresh: async function (req: Request, res: Response) {
+    const oldRefreshToken = getAccessTokenFromRequest(req);
+    if (oldRefreshToken) {
+      await blacklistAccessToken(oldRefreshToken);
+    }
+
+    const refreshToken = getRefreshTokenFromRequest(req);
+    if (!refreshToken) {
+      throw new ForbiddenError();
+    }
+
+    const payload = verifyRefreshToken(refreshToken);
+    if (!payload) {
+      throw new TokenExpiredError();
+    }
+
+    const user = await getUserById(payload.sub);
+    if (!user) {
+      throw new InvalidCredentialsError();
+    }
+
+    const accessToken = generateAccessToken(payload.sub);
+    res.json({
       accessToken,
       user: formatUser(user),
-    } satisfies LoginResponse);
-}
-
-export async function register(req: Request, res: Response) {
-  const { body } = await validateRequest(req, { body: registerSchema });
-
-  if (await getUserByEmail(body.email)) {
-    throw new InvalidCredentialsError();
-  }
-
-  if (!(await getIsPasswordSafe(body.password))) {
-    throw new InvalidCredentialsError();
-  }
-
-  const hash = await hashPassword(body.password);
-  if (!(await createUser(body.email, hash, req.body))) {
-    throw new InternalServerError();
-  }
-
-  res.sendStatus(200);
-}
-
-export async function logout(req: Request, res: Response) {
-  const token = getAccessTokenFromRequest(req);
-  if (token) {
-    await blacklistAccessToken(token);
-  }
-
-  res.clearCookie(REFRESH_TOKEN_COOKIE_NAME).send();
-}
-
-export async function refresh(req: Request, res: Response) {
-  const oldRefreshToken = getAccessTokenFromRequest(req);
-  if (oldRefreshToken) {
-    await blacklistAccessToken(oldRefreshToken);
-  }
-
-  const refreshToken = getRefreshTokenFromRequest(req);
-  if (!refreshToken) {
-    throw new ForbiddenError();
-  }
-
-  const payload = verifyRefreshToken(refreshToken);
-  if (!payload) {
-    throw new TokenExpiredError();
-  }
-
-  const user = await getUserById(payload.sub);
-  if (!user) {
-    throw new InvalidCredentialsError();
-  }
-
-  const accessToken = generateAccessToken(payload.sub);
-  res.json({
-    accessToken,
-    user: formatUser(user),
-  } satisfies AuthRefreshResponse);
-}
+    } satisfies AuthRefreshResponse);
+  },
+} satisfies Controller;
