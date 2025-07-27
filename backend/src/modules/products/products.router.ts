@@ -4,7 +4,7 @@ import { Router } from "express";
 import {
   handleCreateProduct,
   handleDeleteProduct,
-  handleGetAllProducts,
+  handleGetProducts,
   handleGetProductStats,
   handleGetSingleProduct,
   handleUpdateProduct,
@@ -12,7 +12,7 @@ import {
 
 const router: Router = Router();
 
-router.get("/", handleGetAllProducts);
+router.get("/", handleGetProducts);
 router.post("/new", requireAuth, handleCreateProduct);
 
 // URL de statistiques publiques (accessible à toutes les IP) - AVANT /:productId

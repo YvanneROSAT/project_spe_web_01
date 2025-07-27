@@ -1,9 +1,8 @@
-import { CategoriesResponse } from "common";
 import { Router } from "express";
-import { getCategories } from "./categories.service";
+import { handleGetCategories } from "./categories.controller";
 
-export default Router().get("/", async function (req, res) {
-  const categories = await getCategories();
+const router: Router = Router();
 
-  res.json({ categories } satisfies CategoriesResponse);
-});
+router.get("/", handleGetCategories);
+
+export default router;

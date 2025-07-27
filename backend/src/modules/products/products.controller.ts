@@ -21,7 +21,7 @@ import {
   updateProduct,
 } from "./products.service";
 
-export async function handleGetAllProducts(req: Request, res: Response) {
+export async function handleGetProducts(req: Request, res: Response) {
   const { query } = await validateRequest(req, {
     query: z.object({
       search: z.string().optional(),
