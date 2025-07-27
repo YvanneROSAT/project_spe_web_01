@@ -50,12 +50,12 @@ pnpm run dev
 
 ### Architecture de sécurité
 
-| Endpoint          | CSP       | CORS         | Auth        | Description            |
-| ----------------- | --------- | ------------ | ----------- | ---------------------- |
-| `/products/stats` | ❌        | ✅ Ouvert    | ❌          | Statistiques publiques |
-| `/csp-report`     | ❌        | ✅ Restreint | ❌          | Collecte violations    |
-| `/auth/*`         | ✅ Strict | ✅ Restreint | Variable    | Authentification       |
-| `/admin/csp-*`    | ✅ Strict | ✅ Restreint | ✅ JWT+CSRF | Interface admin        |
+| Endpoint          | CSP       | CORS         | Auth     | Description            |
+| ----------------- | --------- | ------------ | -------- | ---------------------- |
+| `/products/stats` | ❌        | ✅ Ouvert    | ❌       | Statistiques publiques |
+| `/csp-report`     | ❌        | ✅ Restreint | ❌       | Collecte violations    |
+| `/auth/*`         | ✅ Strict | ✅ Restreint | Variable | Authentification       |
+| `/admin/csp-*`    | ✅ Strict | ✅ Restreint | ✅ JWT   | Interface admin        |
 
 ### Politique CSP appliquée
 
@@ -68,7 +68,7 @@ pnpm run dev
   imgSrc: ["'self'", "data:", "http://localhost:3000"],
   connectSrc: ["'self'", "http://localhost:5000"],
   objectSrc: ["'none'"], frameSrc: ["'none'"],
-  reportUri: '/csp-report'
+  reportTo: '/csp-report'
 }
 ```
 

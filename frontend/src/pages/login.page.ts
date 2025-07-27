@@ -1,6 +1,6 @@
 import { login } from "@/api/auth";
 import { setAuthStorage } from "@/auth";
-import { extractFormData } from "@/helpers";
+import { extractFormData, html } from "@/helpers";
 import type { Page } from "@/types";
 import { loginSchema } from "common";
 
@@ -15,21 +15,43 @@ function validateLoginData(formData: Record<string, FormDataEntryValue>) {
 }
 
 export default {
-  html: `
-		<h2>Connexion</h2>
-		<form id="loginForm">
-			<div class="mb-3">
-				<label for="email" class="form-label">Email</label>
-				<input type="email" class="form-control" id="email" name="email" autocomplete="email" placeholder="john.doe@mail.com" required />
-			</div>
-			<div class="mb-3">
-				<label for="password" class="form-label">Mot de passe</label>
-				<input type="password" class="form-control" id="password" name="password" autocomplete="current-password" placeholder="●●●●●●●●" required />
-			</div>
-			<button type="submit" class="btn btn-primary">Se connecter</button>
-		</form>
-		<button type="button" class="btn btn-secondary mt-3" onclick="history.back()">Retour</button>
-	`,
+  html: html`
+    <h2>Connexion</h2>
+    <form id="loginForm">
+      <div class="mb-3">
+        <label for="email" class="form-label">Email</label>
+        <input
+          type="email"
+          class="form-control"
+          id="email"
+          name="email"
+          autocomplete="email"
+          placeholder="john.doe@mail.com"
+          required
+        />
+      </div>
+      <div class="mb-3">
+        <label for="password" class="form-label">Mot de passe</label>
+        <input
+          type="password"
+          class="form-control"
+          id="password"
+          name="password"
+          autocomplete="current-password"
+          placeholder="●●●●●●●●"
+          required
+        />
+      </div>
+      <button type="submit" class="btn btn-primary">Se connecter</button>
+    </form>
+    <button
+      type="button"
+      class="btn btn-secondary mt-3"
+      onclick="history.back()"
+    >
+      Retour
+    </button>
+  `,
   onLoad: function () {
     const form = document.querySelector<HTMLFormElement>("form#loginForm");
     if (!form) {

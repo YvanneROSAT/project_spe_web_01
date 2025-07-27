@@ -1,18 +1,30 @@
 import { getProducts } from "@/api/products";
-import { extractFormData } from "@/helpers";
+import { extractFormData, html } from "@/helpers";
 import type { Page } from "@/types";
 
 export default {
-  html: `
+  html: html`
     <h2>Nos Produits</h2>
     <form id="searchForm" class="d-flex gap-2 mb-3">
-      <input type="text" id="search" name="search" class="form-control" placeholder="Rechercher un produit" />
+      <input
+        type="text"
+        id="search"
+        name="search"
+        class="form-control"
+        placeholder="Rechercher un produit"
+      />
       <button type="submit" class="btn btn-secondary inline">🔍</button>
     </form>
     <div class="row" id="productsContainer">
       <p>Chargement...</p>
     </div>
-    <button type="button" class="btn btn-secondary m-2" onclick="history.back()">Retour</button>
+    <button
+      type="button"
+      class="btn btn-secondary m-2"
+      onclick="history.back()"
+    >
+      Retour
+    </button>
   `,
   onLoad: async function () {
     const url = new URL(window.location.href);
