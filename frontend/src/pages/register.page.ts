@@ -31,15 +31,28 @@ export default {
           class="form-control"
           id="firstName"
           name="firstName"
+          placeholder="John"
         />
       </div>
       <div class="mb-3">
         <label for="lastname" class="form-label">Nom</label>
-        <input type="text" class="form-control" id="lastName" name="lastName" />
+        <input
+          type="text"
+          class="form-control"
+          id="lastName"
+          name="lastName"
+          placeholder="Smith"
+        />
       </div>
       <div class="mb-3">
         <label for="email" class="form-label">Email</label>
-        <input type="email" class="form-control" id="email" name="email" />
+        <input
+          type="email"
+          class="form-control"
+          id="email"
+          name="email"
+          placeholder="john.smith@mail.com"
+        />
       </div>
       <div class="mb-3">
         <label for="password" class="form-label">Mot de passe</label>
@@ -48,6 +61,7 @@ export default {
           class="form-control"
           id="password"
           name="password"
+          placeholder="●●●●●●●●"
         />
       </div>
       <div class="mb-3">
@@ -59,6 +73,7 @@ export default {
           class="form-control"
           id="passwordConfirm"
           name="passwordConfirm"
+          placeholder="●●●●●●●●"
         />
       </div>
       <button type="submit" class="btn btn-primary">S’inscrire</button>
