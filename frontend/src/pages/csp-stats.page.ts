@@ -44,6 +44,7 @@ export default {
       </div>
 
       <div class="d-flex gap-2">
+        <a href="/" class="btn btn-primary">Accueil</a>
         <button type="button" class="btn btn-secondary" onclick="history.back()">Retour</button>
         <a href="/csp-test" class="btn btn-warning">Tester CSP</a>
       </div>
