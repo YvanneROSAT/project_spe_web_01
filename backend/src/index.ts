@@ -42,3 +42,18 @@ express()
     );
     logger.info(`🛡️ CSP configuré avec reporting sur: /csp-report`);
   });
+
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-namespace
+  namespace Express {
+    interface Request {
+      user: Readonly<{
+        userId: string;
+      }> | null;
+    }
+
+    interface Locals {
+      nonce?: string;
+    }
+  }
+}

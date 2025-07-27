@@ -1,6 +1,6 @@
-import { getProducts } from "../api";
-import { extractFormData } from "../helpers";
-import type { Page } from "../types";
+import { getProducts } from "@/api/products";
+import { extractFormData } from "@/helpers";
+import type { Page } from "@/types";
 
 export default {
   html: `

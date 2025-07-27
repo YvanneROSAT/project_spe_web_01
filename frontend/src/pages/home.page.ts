@@ -1,6 +1,6 @@
-import { logout } from "../api";
-import { clearAuthStorage, getLocalUser } from "../auth";
-import type { Page } from "../types";
+import { logout } from "@/api/auth";
+import { clearAuthStorage, getLocalUser } from "@/auth";
+import type { Page } from "@/types";
 
 export default {
   html: `

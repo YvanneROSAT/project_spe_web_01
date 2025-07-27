@@ -1,3 +1,5 @@
+import "./style.scss";
+
 import addProductPage from "./pages/add-product.page";
 import cartRoute from "./pages/cart.page";
 import homeRoute from "./pages/home.page";
@@ -5,7 +7,6 @@ import loginRoute from "./pages/login.page";
 import productRoute from "./pages/product.page";
 import productsRoute from "./pages/products.page";
 import registerRoute from "./pages/register.page";
-import "./style.css";
 import type { Page } from "./types";
 
 const app = document.querySelector<HTMLDivElement>("#app");

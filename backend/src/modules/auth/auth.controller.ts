@@ -1,4 +1,4 @@
-import { InternalServerError } from "@/app-error";
+import { InternalServerError } from "@/app.errors";
 import {
   FAKE_PASSWORD_HASH,
   REFRESH_TOKEN_COOKIE_NAME,

@@ -1,5 +1,5 @@
-import { getCart, removeFromCart } from "../cart";
-import type { Page } from "../types";
+import { getCart, removeFromCart } from "@/cart";
+import type { Page } from "@/types";
 
 export default {
   html: `

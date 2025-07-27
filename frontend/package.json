@@ -9,11 +9,16 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/bootstrap": "^5.2.10",
+    "@types/node": "^24.1.0",
+    "sass": "^1.89.2",
     "typescript": "~5.8.3",
     "vite": "^7.0.4"
   },
   "dependencies": {
+    "@popperjs/core": "^2.11.8",
     "axios": "^1.11.0",
+    "bootstrap": "^5.3.7",
     "common": "link:..\\common",
     "jwt-decode": "^4.0.0",
     "zod": "^4.0.10"

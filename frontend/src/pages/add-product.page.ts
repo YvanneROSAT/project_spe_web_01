@@ -1,7 +1,8 @@
+import { getCategories } from "@/api/categories";
+import { createProduct } from "@/api/products";
+import { extractFormData } from "@/helpers";
+import type { Page } from "@/types";
 import { createProductSchema } from "common";
-import { createProduct, getCategories } from "../api";
-import { extractFormData } from "../helpers";
-import type { Page } from "../types";
 
 function validateCreateProductData(
   formData: Record<string, FormDataEntryValue>

@@ -4,22 +4,22 @@ import { requireAuth } from "@/middlewares/requireAuth";
 import { validateRequest } from "@/middlewares/validateRequest";
 import {
   CreateProductResponse,
-  ProductsResponse,
-  SingleProductResponse,
   createProductSchema,
+  ProductsResponse,
   setProductSchema,
+  SingleProductResponse,
 } from "common";
 import { Router } from "express";
 import z from "zod";
 import { ProductNotFoundError } from "./products.errors";
 import { singleProductParamsSchema } from "./products.schemas";
 import {
-  PRODUCTS_PER_PAGE,
   createProduct,
   deleteProduct,
   getProductById,
   getProducts,
   getPublicStats,
+  PRODUCTS_PER_PAGE,
   updateProduct,
 } from "./products.service";
 

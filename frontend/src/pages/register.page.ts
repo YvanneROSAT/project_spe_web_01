@@ -1,7 +1,7 @@
+import { login, register } from "@/api/auth";
+import { extractFormData } from "@/helpers";
+import type { Page } from "@/types";
 import { registerSchema } from "common";
-import { login, register } from "../api";
-import { extractFormData } from "../helpers";
-import type { Page } from "../types";
 
 function validateRegisterData(formData: Record<string, FormDataEntryValue>) {
   const result = registerSchema.safeParse(formData);

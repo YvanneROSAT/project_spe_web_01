@@ -1,4 +1,4 @@
-import { ForbiddenError } from "@/modules/auth/auth.errors";
+import { ForbiddenError } from "common";
 import { NextFunction, Request, Response } from "express";
 
 export async function requireAuth(

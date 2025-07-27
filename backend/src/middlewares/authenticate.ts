@@ -1,9 +1,9 @@
-import { TokenExpiredError } from "@/modules/auth/auth.errors";
 import {
   getAccessTokenFromRequest,
   getIsTokenBlacklisted,
   verifyAccessToken,
 } from "@/modules/auth/jwt";
+import { TokenExpiredError } from "common";
 import { NextFunction, Request, Response } from "express";
 
 export async function authenticate(

@@ -1,7 +1,7 @@
-import { getProduct } from "../api";
-import { getLocalUser } from "../auth";
-import { addToCart, getCart } from "../cart";
-import type { Page } from "../types";
+import { getProduct } from "@/api/products";
+import { getLocalUser } from "@/auth";
+import { addToCart, getCart } from "@/cart";
+import type { Page } from "@/types";
 
 export default {
   html: `

@@ -1,6 +1,6 @@
 import { userSchema, type User } from "common";
 import { jwtDecode } from "jwt-decode";
-import { getRefreshedAccessToken } from "./api";
+import { getRefreshedAccessToken } from "./api/auth";
 import { getFromLocalStorage } from "./local-storage";
 
 export function getLocalUser(): User | null {

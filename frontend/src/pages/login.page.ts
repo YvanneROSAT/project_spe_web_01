@@ -1,8 +1,8 @@
+import { login } from "@/api/auth";
+import { setAuthStorage } from "@/auth";
+import { extractFormData } from "@/helpers";
+import type { Page } from "@/types";
 import { loginSchema } from "common";
-import { login } from "../api";
-import { setAuthStorage } from "../auth";
-import { extractFormData } from "../helpers";
-import type { Page } from "../types";
 
 function validateLoginData(formData: Record<string, FormDataEntryValue>) {
   const result = loginSchema.safeParse(formData);
