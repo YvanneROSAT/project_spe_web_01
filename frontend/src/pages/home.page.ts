@@ -10,7 +10,7 @@ export default {
       <a href="/register" id="registerLink" class="btn btn-secondary m-2">S'inscrire</a>
       <a href="/add-product" id="addProductLink" class="btn btn-success  m-2">Ajouter un produit</a>
       <a href="/products" class="btn btn-info m-2">Voir les produits</a>
-      <a href="/stats" class="btn btn-warning m-2">Statistiques</a>
+      <a href="/csp-stats" class="btn btn-warning m-2">Stats CSP</a>
       <a href="/cart" id="cartLink" class="btn btn-primary m-2">Panier</a>
     </div>
   `,

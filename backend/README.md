@@ -220,12 +220,12 @@ tail -f app.log | grep "CSP"
 
 ## 📋 Checklist de validation
 
-- [ ] `./test-csp.sh` : tous les tests passent
-- [ ] `test-csp.html` : violations générées et stockées
-- [ ] CSP Evaluator : note A/A-
-- [ ] Admin protégé par auth
-- [ ] Stats publiques accessibles
-- [ ] CORS restreint fonctionnel
+- [*] `./test-csp.sh` : tous les tests passent
+- [*] `test-csp.html` : violations générées et stockées
+- [*] CSP Evaluator : note A/A-
+- [*] Admin protégé par auth
+- [*] Stats publiques accessibles
+- [*] CORS restreint fonctionnel
 
 ## 📡 URLs importantes
 
