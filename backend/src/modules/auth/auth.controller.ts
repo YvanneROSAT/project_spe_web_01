@@ -27,7 +27,7 @@ import {
 } from "./jwt";
 import { comparePassword, getIsPasswordSafe, hashPassword } from "./password";
 
-const formateUser = (user: typeof usersTable.$inferSelect): User => ({
+const formatUser = (user: typeof usersTable.$inferSelect): User => ({
   id: user.userId,
   email: user.email,
   firstName: user.firstName,
@@ -55,7 +55,7 @@ export async function login(req: Request, res: Response) {
     )
     .json({
       accessToken,
-      user: formateUser(user),
+      user: formatUser(user),
     } satisfies LoginResponse);
 }
 
@@ -109,6 +109,6 @@ export async function refresh(req: Request, res: Response) {
   const accessToken = generateAccessToken(payload.sub);
   res.json({
     accessToken,
-    user: formateUser(user),
+    user: formatUser(user),
   } satisfies AuthRefreshResponse);
 }

@@ -7,6 +7,7 @@ import z from "zod";
 import {
   blacklistAccessToken,
   generateAccessToken,
+  generateRefreshToken,
   getAccessTokenFromRequest,
   getIsTokenBlacklisted,
   getRefreshTokenFromRequest,
@@ -54,13 +55,12 @@ describe("generateAccessToken", () => {
 
 describe("generateRefreshToken", () => {
   it("returns the signed refresh token ", () => {
-    process.env.ACCESS_TOKEN_SECRET = "jwt-access-secret";
+    process.env.REFRESH_TOKEN_SECRET = "jwt-refresh-secret";
 
-    const res = generateAccessToken("userId");
+    const res = generateRefreshToken("userId");
 
     expect(jwt.decode(res)).toEqual({
       sub: "userId",
-      jti: expect.any(String),
       exp: expect.any(Number),
       iat: expect.any(Number),
     });
