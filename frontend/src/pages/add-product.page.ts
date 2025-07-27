@@ -27,6 +27,7 @@ export default {
           class="form-control"
           id="productName"
           name="name"
+          placeholder="Chaise"
           required
         />
       </div>
@@ -36,6 +37,7 @@ export default {
           class="form-control"
           id="productDescription"
           name="description"
+          placeholder="Une incroyable chaise pour s'asseoir"
           required
         ></textarea>
       </div>
@@ -46,6 +48,9 @@ export default {
           class="form-control"
           id="productPrice"
           name="price"
+          step="0.01"
+          min="0"
+          max="99999"
           required
         />
       </div>
