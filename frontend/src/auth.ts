@@ -4,7 +4,9 @@ import { userSchema, type User } from "common";
 import { jwtDecode } from "jwt-decode";
 
 export function getLocalUser(): User | null {
-  return getFromLocalStorage("user", userSchema);
+  return getAccessTokenFromStorage().expired
+    ? null
+    : getFromLocalStorage("user", userSchema);
 }
 
 export function getAccessTokenFromStorage(): {
