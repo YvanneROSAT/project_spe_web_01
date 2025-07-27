@@ -5,7 +5,10 @@ import {
   REFRESH_TOKEN_COOKIE_OPTIONS,
 } from "@/config";
 import { usersTable } from "@/db/schema";
+import { validateRequest } from "@/middlewares/validateRequest";
 import {
+  loginSchema,
+  registerSchema,
   type AuthRefreshResponse,
   type LoginResponse,
   type User,
@@ -35,9 +38,11 @@ const formatUser = (user: typeof usersTable.$inferSelect): User => ({
 });
 
 export async function login(req: Request, res: Response) {
-  const user = await getUserByEmail(req.body.email);
+  const { body } = await validateRequest(req, { body: loginSchema });
+
+  const user = await getUserByEmail(body.email);
   const match = await comparePassword(
-    req.body.password,
+    body.password,
     user?.passwordHash ?? FAKE_PASSWORD_HASH
   );
   if (!user || !match) {
@@ -60,16 +65,18 @@ export async function login(req: Request, res: Response) {
 }
 
 export async function register(req: Request, res: Response) {
-  if (await getUserByEmail(req.body.email)) {
+  const { body } = await validateRequest(req, { body: registerSchema });
+
+  if (await getUserByEmail(body.email)) {
     throw new InvalidCredentialsError();
   }
 
-  if (!(await getIsPasswordSafe(req.body.password))) {
+  if (!(await getIsPasswordSafe(body.password))) {
     throw new InvalidCredentialsError();
   }
 
-  const hash = await hashPassword(req.body.password);
-  if (!(await createUser(req.body.email, hash, req.body))) {
+  const hash = await hashPassword(body.password);
+  if (!(await createUser(body.email, hash, req.body))) {
     throw new InternalServerError();
   }
 

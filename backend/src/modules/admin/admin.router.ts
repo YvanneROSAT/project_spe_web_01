@@ -7,47 +7,44 @@ import { getCSPReports, getCSPStats, saveCSPReport } from "./admin.service";
 
 const router: Router = Router();
 // les rapports CSP (accessible à tous)
-router.post(
-  "/csp-report",
-  validateRequest({ body: cspReportSchema }),
-  async (req, res) => {
-    try {
-      const userAgent = req.headers["user-agent"] || "";
-      const ipAddress = req.ip || req.connection.remoteAddress || "unknown";
+router.post("/csp-report", async (req, res) => {
+  const { body } = await validateRequest(req, { body: cspReportSchema });
 
-      await saveCSPReport(req.body, userAgent, ipAddress);
+  try {
+    const userAgent = req.headers["user-agent"] || "";
+    const ipAddress = req.ip || req.connection.remoteAddress || "unknown";
 
-      logger.info("CSP Violation Report reçu", {
-        timestamp: new Date().toISOString(),
-        directive: req.body["csp-report"]?.["violated-directive"],
-        blockedUri: req.body["csp-report"]?.["blocked-uri"],
-        userAgent,
-        ipAddress,
-      });
+    await saveCSPReport(body, userAgent, ipAddress);
 
-      res.status(204).send();
-    } catch (error) {
-      logger.error("Erreur lors du stockage du rapport CSP", error);
-      res.status(500).json({ error: "Erreur interne du serveur" });
-    }
+    logger.info("CSP Violation Report reçu", {
+      timestamp: new Date().toISOString(),
+      directive: body["csp-report"]?.["violated-directive"],
+      blockedUri: body["csp-report"]?.["blocked-uri"],
+      userAgent,
+      ipAddress,
+    });
+
+    res.status(204).send();
+  } catch (error) {
+    logger.error("Erreur lors du stockage du rapport CSP", error);
+    res.status(500).json({ error: "Erreur interne du serveur" });
   }
-);
+});
 
 // rapports Admin CSP
-router.get(
-  "/admin/csp-reports",
-  requireAuth,
-  validateRequest({ query: cspReportsQuerySchema }),
-  async (req, res) => {
-    try {
-      const result = await getCSPReports(req.query);
-      res.json(result);
-    } catch (error) {
-      logger.error("Erreur lors de la récupération des rapports CSP", error);
-      res.status(500).json({ error: "Erreur interne du serveur" });
-    }
+router.get("/admin/csp-reports", requireAuth, async (req, res) => {
+  const { query } = await validateRequest(req, {
+    query: cspReportsQuerySchema,
+  });
+
+  try {
+    const result = await getCSPReports(query);
+    res.json(result);
+  } catch (error) {
+    logger.error("Erreur lors de la récupération des rapports CSP", error);
+    res.status(500).json({ error: "Erreur interne du serveur" });
   }
-);
+});
 
 // Statistiques des violations CSP
 router.get("/admin/csp-stats", requireAuth, async (req, res) => {
