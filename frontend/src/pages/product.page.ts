@@ -44,13 +44,6 @@ export default {
       >
         Retour
       </button>
-      <button
-        type="button"
-        class="btn btn-success m-2"
-        onclick="window.location.href = 'edit-product?id=${product.id}'"
-      >
-        Modifier
-      </button>
     `;
 
     const addToCartButton = document.createElement("button");
@@ -60,8 +53,17 @@ export default {
       addToCart(product);
     });
 
-    if (getLocalUser() && !cart.some((p) => p.id === product.id)) {
-      productContainer.appendChild(addToCartButton);
+    const editProductLink = document.createElement("a");
+    editProductLink.href = `/edit-product?id=${product.id}`;
+    editProductLink.textContent = "Modifier";
+    editProductLink.classList.add("btn", "btn-success", "m-2");
+
+    if (getLocalUser()) {
+      productContainer.appendChild(editProductLink);
+
+      if (!cart.some((p) => p.id === product.id)) {
+        productContainer.appendChild(addToCartButton);
+      }
     }
   },
 } satisfies Page;
